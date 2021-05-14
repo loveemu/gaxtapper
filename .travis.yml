@@ -1,0 +1,19 @@
+sudo: false
+dist: trusty
+language: cpp
+
+matrix:
+  include:
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-9
+      env:
+        - COMPILER="g++-9"
+
+script:
+  - CXX=${COMPILER} cmake -H. -Bbuild
+  - CXX=${COMPILER} cmake --build build
