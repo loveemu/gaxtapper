@@ -19,7 +19,7 @@ Cartridge Cartridge::LoadFromFile(const std::filesystem::path& path) {
   stream.exceptions(std::ios::badbit | std::ios::eofbit | std::ios::failbit);
 
   const auto aligned_size = (size + 3) & ~3;
-  std::string rom(aligned_size, 0);
+  std::string rom(static_cast<std::string::size_type>(aligned_size), 0);
   stream.read(rom.data(), size);
   stream.close();
 
