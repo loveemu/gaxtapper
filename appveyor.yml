@@ -33,8 +33,7 @@ build_script:
   - msbuild build\gaxtapper.sln /t:build /p:Configuration="%config%" /m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
 after_build:
-  - ps: $env:gitrev = git describe --tags
-  - ps: $env:my_version = "$env:gitrev"
+  - ps: $env:my_version = "$env:APPVEYOR_BUILD_VERSION-$($env:APPVEYOR_REPO_COMMIT.substring(0,7))"
   - set package_name=gaxtapper-%my_version%-%arch%
   - copy "build\%config%\gaxtapper.exe" .
   - 7z a %package_name%.zip gaxtapper.exe optimize.bat README.md LICENSE.txt
