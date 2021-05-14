@@ -11,10 +11,9 @@ using namespace gaxtapper;
 using namespace std::literals::string_literals;
 
 inline static const std::string kAppName = "Gaxtapper"s;
-inline static const std::string kAppVersion = "2.0"s;
+inline static const std::string kAppVersion = "0.1"s;
 inline static const std::string kAppCredits =
-    "Original created by Caitsith2, reimplemented by loveemu from scratch."s
-    "\nVisit <http://github.com/loveemu/gaxtapper> for details."s;
+    "Created by loveemu. Visit <http://github.com/loveemu/gaxtapper> for details."s;
 
 int main(int argc, const char** argv) {
   try {
