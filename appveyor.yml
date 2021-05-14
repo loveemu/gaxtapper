@@ -4,31 +4,35 @@ image: Visual Studio 2017
 
 environment:
   matrix:
-  - generator: "Visual Studio 15"
+  - cmake_generator: Visual Studio 16 2019
+    cmake_arch: Win32
+    config: Release
+    arch: vs2019-x86
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+
+  - cmake_generator: Visual Studio 16 2019
+    cmake_arch: x64
+    config: Release
+    arch: vs2019-x64
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+
+  - cmake_generator: Visual Studio 15 2017
+    cmake_arch: Win32
     config: Release
     arch: vs2017-x86
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
-  - generator: "Visual Studio 15 Win64"
+  - cmake_generator: Visual Studio 15 2017
+    cmake_arch: x64
     config: Release
     arch: vs2017-x64
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-
-  - generator: "Visual Studio 14"
-    config: Release
-    arch: vs2015-x86
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-
-  - generator: "Visual Studio 14 Win64"
-    config: Release
-    arch: vs2015-x64
-    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
 init:
   - git config --global core.autocrlf input
 
 build_script:
-  - cmake -G"%generator%" -H. -Bbuild
+  - cmake -G"%cmake_generator%" -A"%cmake_arch%" -H. -Bbuild
   #- cmake --build build --config "%config%"
   - msbuild build\gaxtapper.sln /t:build /p:Configuration="%config%" /m /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
