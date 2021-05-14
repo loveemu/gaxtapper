@@ -46,6 +46,8 @@ class GaxDriver {
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // TODO: write a real driver
 
+  static GaxVersion GaxDriver::ParseVersionText(std::string_view version_text);
+  static std::string_view FindGaxVersionText(std::string_view rom);
   static agbptr_t FindGax2New(std::string_view rom);
   static agbptr_t FindGax2Init(std::string_view rom);
   static agbptr_t FindGaxIrq(std::string_view rom);

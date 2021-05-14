@@ -29,11 +29,10 @@ void Gaxtapper::ConvertToGsfSet(Cartridge& cartridge,
     throw std::runtime_error(message.str());
   }
 
-  std::filesystem::path basepath{outdir};
-  basepath /= basename;
-  create_directories(basepath.parent_path());
+  create_directories(outdir);
 
-  std::filesystem::path gsflib_path{basepath};
+  std::filesystem::path gsflib_path{outdir};
+  gsflib_path /= basename;
   gsflib_path += ".gsflib";
 
   constexpr agbptr_t kEntrypoint = to_romptr(0);
@@ -42,14 +41,20 @@ void Gaxtapper::ConvertToGsfSet(Cartridge& cartridge,
 
   constexpr agbptr_t minigsf_address =
       GaxDriver::minigsf_address(kGaxtapperGsfDriverAddress);
-  for (const agbptr_t song : param.songs()) {
-    std::ostringstream song_id;
-    song_id << std::setfill('0') << std::setw(8) << std::hex << song;
+  for (const GaxSongParam & song : param.songs()) {
+    std::filesystem::path minigsf_filename{song.name()};
+    if (minigsf_filename.empty()) {
+      std::ostringstream song_id;
+      song_id << std::setfill('0') << std::setw(8) << std::hex
+              << song.address();
+      minigsf_filename += basename;
+      minigsf_filename += "-";
+      minigsf_filename += song_id.str();
+    }
+    minigsf_filename += ".minigsf";
 
-    std::filesystem::path minigsf_path{basepath};
-    minigsf_path += "-";
-    minigsf_path += song_id.str();
-    minigsf_path += ".minigsf";
+    std::filesystem::path minigsf_path{outdir};
+    minigsf_path /= minigsf_filename;
 
     std::map<std::string, std::string> minigsf_tags{
         {"_lib", gsflib_path.filename().string()}};
@@ -66,13 +71,13 @@ void Gaxtapper::ConvertToGsfSet(Cartridge& cartridge,
 
 void Gaxtapper::Inspect(const Cartridge& cartridge) {
   const GaxDriverParam param = GaxDriver::Inspect(cartridge.rom());
-  const std::vector<agbptr_t> & songs = param.songs();
+  const std::vector<GaxSongParam> & songs = param.songs();
 
   GaxMinigsfDriverParam minigsf;
   constexpr agbptr_t minigsf_address =
       GaxDriver::minigsf_address(kGaxtapperGsfDriverAddress);
   minigsf.set_address(minigsf_address);
-  minigsf.set_song(!songs.empty() ? songs[0] : agbnullptr);
+  minigsf.set_song(!songs.empty() ? songs[0] : GaxSongParam{});
 
   std::cout << "Status: " << (param.ok() ? "OK" : "FAILED") << std::endl
             << std::endl;

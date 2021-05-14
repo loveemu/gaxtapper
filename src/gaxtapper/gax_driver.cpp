@@ -16,6 +16,8 @@ namespace gaxtapper {
 
 GaxDriverParam GaxDriver::Inspect(std::string_view rom) {
   GaxDriverParam param;
+  param.set_version_text(FindGaxVersionText(rom));
+  param.set_version(ParseVersionText(param.version_text()));
   param.set_gax2_new(FindGax2New(rom));
   param.set_gax2_init(FindGax2Init(rom));
   param.set_gax_irq(FindGaxIrq(rom));
@@ -58,14 +60,32 @@ std::string GaxDriver::NewMinigsfData(const GaxMinigsfDriverParam& param) {
   }
 
   char data[4];
-  WriteInt32L(data, param.song());
+  WriteInt32L(data, param.song().address());
   return std::string(data);
 }
 
+GaxVersion GaxDriver::ParseVersionText(std::string_view version_text) {
+  constexpr std::string_view pattern{"GAX Sound Engine "};
+  if (version_text.size() < pattern.size() + 1) return kGaxUnknownVersion;
+  if (version_text[pattern.size()] == '3') return kGaxVersion3;
+  return kGaxUnknownVersion;
+}
+
+std::string_view GaxDriver::FindGaxVersionText(std::string_view rom) {
+  constexpr std::string_view pattern{"GAX Sound Engine "};
+  const auto offset = rom.find(pattern);
+  if (offset == std::string_view::npos) return rom.substr(rom.size());
+
+  const auto end_offset = rom.find_first_of(' ', offset + pattern.size());
+  const auto count = end_offset != std::string_view::npos
+                         ? end_offset - offset
+                         : std::string_view::npos;
+  return rom.substr(offset, count);
+}
+
 agbptr_t GaxDriver::FindGax2New(std::string_view rom) {
-  using namespace std::literals::string_view_literals;
-  const std::string_view pattern = {
-      "\xf0\xb5\x47\x46\x80\xb4\x81\xb0\x06\x1c\x00\x2e\x08\xd1\x02\x48\x02\x49"sv};
+  constexpr std::string_view pattern{
+      "\xf0\xb5\x47\x46\x80\xb4\x81\xb0\x06\x1c\x00\x2e\x08\xd1\x02\x48\x02\x49"};
   const auto offset = rom.find(pattern);
   return offset != std::string_view::npos
              ? to_romptr(static_cast<uint32_t>(offset))
@@ -73,9 +93,8 @@ agbptr_t GaxDriver::FindGax2New(std::string_view rom) {
 }
 
 agbptr_t GaxDriver::FindGax2Init(std::string_view rom) {
-  using namespace std::literals::string_view_literals;
-  const std::string_view pattern = {
-      "\xf0\xb5\x57\x46\x4e\x46\x45\x46\xe0\xb4\x81\xb0\x07\x1c\x00\x26\x0e\x48\x39\x68\x01\x60"sv};
+  constexpr std::string_view pattern{
+      "\xf0\xb5\x57\x46\x4e\x46\x45\x46\xe0\xb4\x81\xb0\x07\x1c\x00\x26\x0e\x48\x39\x68\x01\x60"};
   const auto offset = rom.find(pattern);
   return offset != std::string_view::npos
              ? to_romptr(static_cast<uint32_t>(offset))
@@ -83,9 +102,8 @@ agbptr_t GaxDriver::FindGax2Init(std::string_view rom) {
 }
 
 agbptr_t GaxDriver::FindGaxIrq(std::string_view rom) {
-  using namespace std::literals::string_view_literals;
-  const std::string_view pattern = {
-      "\xf0\xb5\x3b\x48\x02\x68\x11\x68\x3a\x48\x81\x42\x6d\xd1\x50\x6d\x00\x28\x6a\xd0\x50\x6d\x01\x28\x1a\xd1\x02\x20\x50\x65\x36\x49"sv};
+  constexpr std::string_view pattern{
+      "\xf0\xb5\x3b\x48\x02\x68\x11\x68\x3a\x48\x81\x42\x6d\xd1\x50\x6d\x00\x28\x6a\xd0\x50\x6d\x01\x28\x1a\xd1\x02\x20\x50\x65\x36\x49"};
   const auto offset = rom.find(pattern);
   return offset != std::string_view::npos
              ? to_romptr(static_cast<uint32_t>(offset))
@@ -93,9 +111,8 @@ agbptr_t GaxDriver::FindGaxIrq(std::string_view rom) {
 }
 
 agbptr_t GaxDriver::FindGaxPlay(std::string_view rom) {
-  using namespace std::literals::string_view_literals;
-  const std::string_view pattern = {
-      "\x70\xb5\x81\xb0\x47\x48\x01\x68\x48\x6d\x00\x28\x00\xd1"sv};
+  constexpr std::string_view pattern{
+      "\x70\xb5\x81\xb0\x47\x48\x01\x68\x48\x6d\x00\x28\x00\xd1"};
   const std::string_view::size_type offset = rom.find(pattern);
   return offset != std::string_view::npos
              ? to_romptr(static_cast<uint32_t>(offset))
