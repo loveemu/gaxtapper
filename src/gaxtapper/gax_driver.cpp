@@ -76,11 +76,24 @@ std::string_view GaxDriver::FindGaxVersionText(std::string_view rom) {
   const auto offset = rom.find(pattern);
   if (offset == std::string_view::npos) return rom.substr(rom.size());
 
-  const auto end_offset = rom.find_first_of(' ', offset + pattern.size());
-  const auto count = end_offset != std::string_view::npos
-                         ? end_offset - offset
-                         : std::string_view::npos;
-  return rom.substr(offset, count);
+  // Limit the maximum length of the text for safety and speed.
+  const std::string_view version_text_with_noise{rom.substr(offset, 128)};
+
+  // Get the null-terminated string.
+  const auto end_offset = version_text_with_noise.find_first_of('\0');
+  const std::string_view full_version_text{
+      end_offset != std::string_view::npos
+          ? version_text_with_noise.substr(0, end_offset)
+          : version_text_with_noise};
+
+  // Trim the copyright part.
+  // " (C) Shin'en Multimedia. Code: B.Wodok"
+  const auto copyright_offset = full_version_text.find_first_of('\xa9');
+  return std::string_view{
+      copyright_offset != std::string_view::npos
+          ? full_version_text.substr(0, std::max<std::string_view::size_type>(
+                                            0, copyright_offset - 1))
+          : full_version_text};
 }
 
 agbptr_t GaxDriver::FindGax2New(std::string_view rom) {
