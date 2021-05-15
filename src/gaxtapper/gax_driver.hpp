@@ -52,6 +52,7 @@ class GaxDriver {
   static agbptr_t FindGax2Init(std::string_view rom);
   static agbptr_t FindGaxIrq(std::string_view rom);
   static agbptr_t FindGaxPlay(std::string_view rom);
+  static std::vector<GaxSongParam> FindGaxSongs(std::string_view rom);
 };
 
 }  // namespace gaxtapper

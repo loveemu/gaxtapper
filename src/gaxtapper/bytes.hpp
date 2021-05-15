@@ -64,12 +64,12 @@ constexpr OutputIterator WriteInt32L(OutputIterator out, std::uint32_t value) {
   return out;
 }
 
-/// Reads a 8-bit integer in little-endian order.
+/// Reads a 8-bit integer.
 /// @param in the input iterator.
 /// @return the number to be read.
 /// @tparam InputIterator an Iterator that can read from the pointed-to element.
 template <typename InputIterator>
-constexpr std::uint8_t ReadInt8L(InputIterator in) {
+constexpr std::uint8_t ReadInt8(InputIterator in) {
   static_assert(sizeof(*in) == 1, "Element size of InputIterator must be 1.");
   return *in;
 }

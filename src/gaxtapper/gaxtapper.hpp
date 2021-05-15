@@ -8,7 +8,7 @@
 
 namespace gaxtapper {
 
-static constexpr agbptr_t kGaxtapperGsfDriverAddress = 0x80000c0;
+static constexpr agbptr_t kGaxtapperGsfDriverAddress = to_romptr(0xc0);
 
 class Gaxtapper {
  public:

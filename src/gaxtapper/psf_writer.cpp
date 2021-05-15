@@ -16,7 +16,7 @@ PsfWriter::PsfWriter(uint8_t version, std::map<std::string, std::string> tags)
 
 void PsfWriter::SaveToFile(const std::filesystem::path& path) {
   std::ofstream file(path, std::ios::out | std::ios::binary);
-  file.exceptions(std::ios::badbit);
+  file.exceptions(std::ios::badbit | std::ios::failbit);
   SaveToStream(file);
   file.close();
 }

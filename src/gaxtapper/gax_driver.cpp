@@ -2,6 +2,7 @@
 
 #include "gax_driver.hpp"
 
+#include <algorithm>
 #include <cstring>
 #include <sstream>
 #include <string>
@@ -10,6 +11,7 @@
 #include "bytes.hpp"
 #include "gax_driver_param.hpp"
 #include "gax_minigsf_driver_param.hpp"
+#include "gax_song_header.hpp"
 #include "types.hpp"
 
 namespace gaxtapper {
@@ -24,6 +26,7 @@ GaxDriverParam GaxDriver::Inspect(std::string_view rom) {
   param.set_gax2_init(FindGax2Init(rom));
   param.set_gax_irq(FindGaxIrq(rom));
   param.set_gax_play(FindGaxPlay(rom));
+  param.set_songs(FindGaxSongs(rom));
   return param;
 }
 
@@ -63,7 +66,7 @@ std::string GaxDriver::NewMinigsfData(const GaxMinigsfDriverParam& param) {
 
   char data[4];
   WriteInt32L(data, param.song().address());
-  return std::string(data);
+  return std::string(data, 4);
 }
 
 GaxVersion GaxDriver::ParseVersionText(std::string_view version_text) {
@@ -132,6 +135,16 @@ agbptr_t GaxDriver::FindGaxPlay(std::string_view rom) {
   return offset != std::string_view::npos
              ? to_romptr(static_cast<uint32_t>(offset))
              : agbnullptr;
+}
+
+std::vector<GaxSongParam> GaxDriver::FindGaxSongs(std::string_view rom) {
+  const std::vector<GaxSongHeader> songs = GaxSongHeader::Scan(rom);
+  std::vector<GaxSongParam> song_params;
+  song_params.reserve(songs.size());
+  std::transform(
+      songs.begin(), songs.end(), std::back_inserter(song_params),
+      [](const GaxSongHeader& song) { return GaxSongParam{song.address()}; });
+  return song_params;
 }
 
 }  // namespace gaxtapper

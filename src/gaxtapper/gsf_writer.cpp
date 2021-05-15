@@ -16,7 +16,7 @@ void GsfWriter::SaveToFile(const std::filesystem::path& path,
                            const GsfHeader& header, std::string_view rom,
                            std::map<std::string, std::string> tags) {
   std::ofstream file(path, std::ios::out | std::ios::binary);
-  file.exceptions(std::ios::badbit);
+  file.exceptions(std::ios::badbit | std::ios::failbit);
   SaveToStream(file, header, rom, std::move(tags));
   file.close();
 }

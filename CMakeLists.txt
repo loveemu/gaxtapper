@@ -52,6 +52,7 @@ set(SRCS
     src/gaxtapper/cartridge.cpp
     src/gaxtapper/gsf_writer.cpp
     src/gaxtapper/gax_driver.cpp
+    src/gaxtapper/gax_song_header.cpp
     src/gaxtapper/psf_writer.cpp
     src/gaxtapper/gaxtapper.cpp
 )
@@ -67,6 +68,7 @@ set(HDRS
     src/gaxtapper/gsf_writer.hpp
     src/gaxtapper/gax_minigsf_driver_param.hpp
     src/gaxtapper/gax_song_param.hpp
+    src/gaxtapper/gax_song_header.hpp
     src/gaxtapper/gax_version.hpp
     src/gaxtapper/gax_driver.hpp
     src/gaxtapper/gax_driver_param.hpp

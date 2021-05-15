@@ -29,7 +29,11 @@ void Gaxtapper::ConvertToGsfSet(Cartridge& cartridge,
     throw std::runtime_error(message.str());
   }
 
-  create_directories(outdir);
+  GaxDriver::InstallGsfDriver(cartridge.rom(), kGaxtapperGsfDriverAddress,
+                              param);
+
+  if (!outdir.empty())
+    create_directories(outdir);
 
   std::filesystem::path gsflib_path{outdir};
   gsflib_path /= basename;

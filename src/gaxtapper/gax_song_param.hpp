@@ -13,7 +13,7 @@ class GaxSongParam {
  public:
   GaxSongParam() = default;
 
-  GaxSongParam(agbptr_t address, std::string name, std::string copyright)
+  GaxSongParam(agbptr_t address, std::string name = "", std::string copyright = "")
       : address_(address),
         name_(std::move(name)),
         copyright_(std::move(copyright)) {}
