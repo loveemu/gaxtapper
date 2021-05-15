@@ -14,6 +14,8 @@
 
 namespace gaxtapper {
 
+static constexpr std::string_view kVersionTextPrefixPattern{"GAX Sound Engine "};
+
 GaxDriverParam GaxDriver::Inspect(std::string_view rom) {
   GaxDriverParam param;
   param.set_version_text(FindGaxVersionText(rom));
@@ -65,15 +67,15 @@ std::string GaxDriver::NewMinigsfData(const GaxMinigsfDriverParam& param) {
 }
 
 GaxVersion GaxDriver::ParseVersionText(std::string_view version_text) {
-  constexpr std::string_view pattern{"GAX Sound Engine "};
-  if (version_text.size() < pattern.size() + 1) return kGaxUnknownVersion;
-  if (version_text[pattern.size()] == '3') return kGaxVersion3;
+  if (version_text.size() < kVersionTextPrefixPattern.size() + 1)
+    return kGaxUnknownVersion;
+  if (version_text[kVersionTextPrefixPattern.size()] == '3')
+    return kGaxVersion3;
   return kGaxUnknownVersion;
 }
 
 std::string_view GaxDriver::FindGaxVersionText(std::string_view rom) {
-  constexpr std::string_view pattern{"GAX Sound Engine "};
-  const auto offset = rom.find(pattern);
+  const auto offset = rom.find(kVersionTextPrefixPattern);
   if (offset == std::string_view::npos) return rom.substr(rom.size());
 
   // Limit the maximum length of the text for safety and speed.
