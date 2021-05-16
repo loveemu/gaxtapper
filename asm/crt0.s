@@ -17,7 +17,7 @@ Start: @ 8000000
 	.arm
 	.align 2, 0
 	.global Init
-Init:
+Init: @ 80000C0
 	mov r0, #PSR_IRQ_MODE
 	msr cpsr_cf, r0
 	ldr sp, sp_irq

@@ -1,22 +1,20 @@
 	.include "macros/function.inc"
 	.include "constants/gba_constants.inc"
+	.include "constants/gax3_constants.inc"
+	.include "constants/syscall.inc"
 
 	.syntax unified
-
-	.set CPU_SET_SRC_FIXED, 0x01000000
-	.set CPU_SET_16BIT,     0x00000000
-	.set CPU_SET_32BIT,     0x04000000
 
 	.set INTR_MAIN_BUFFER_SIZE, 0xA4
 	.set GAX_WORK_RAM_SIZE, 0x1000
 
 	.text
 
-	.thumb
-
 	thumb_func_start AgbMain
 AgbMain:
 	push {r4-r7,lr}
+	@sub fp, sp, #Gax2Params_size
+	sub sp, sp, #Gax2Params_size
 
 	ldr r7, =REG_IE
 	ldr r1, =0x4014
@@ -34,12 +32,34 @@ AgbMain_ReadSignature:
 	.align 2, 0
 GaxtapperSignature:
 	.asciz "Gaxtapper 0.01 \xa9 loveemu"
-	.align 2, 0
+	.align 2, 0 @ Don't pad with nop.
 	.size GaxtapperSignature, .-GaxtapperSignature
 	.pool
 
 AgbMain_Init:
 	bl InitIntrHandlers
+
+	mov r4, sp
+	movs r0, r4
+	bl gax2_new
+
+	ldr r0, =myGaxFlags
+	strh r0, [r4, #o_Gax2Params_flags]
+	ldr r0, =myGaxMixingRate
+	strh r0, [r4, #o_Gax2Params_mixing_rate]
+	strh r0, [r4, #o_Gax2Params_fx_mixing_rate]
+	ldr r0, =myGaxVolume
+	strh r0, [r4, #o_Gax2Params_volume]
+	movs r0, #0
+	strh r0, [r4, #o_Gax2Params_num_fx_channels]
+	ldr r0, =myGaxSongPointer
+	str r0, [r4, #o_Gax2Params_music]
+	ldr r0, =myGaxSfxPointer
+	str r0, [r4, #o_Gax2Params_sfx]
+	ldr r0, =GAX_WORK_RAM_SIZE
+	str r0, [r4, #o_Gax2Params_wram_size]
+	movs r0, r4
+	bl gax2_init
 
 AgbMain_Loop:
 	svc 2
@@ -51,6 +71,7 @@ AgbMain_Loop:
 InitIntrHandlers:
 	push {r4,lr}
 
+	@ TODO: use DMA instead
 	ldr r4,=IntrMainBuffer
 	ldr r0,=IntrMain
 	movs r1, r4
@@ -81,19 +102,71 @@ IntrDummy:
 
 	thumb_func_start VBlankIntr
 VBlankIntr:
-	bx lr
+	push {lr}
+	bl gax_irq
+	bl gax_play
+	pop {r0}
+	bx r0
 	.pool
 	thumb_func_end VBlankIntr
 
-	.align 2, 0
+	thumb_func_start gax2_new
 gax2_new:
-	.4byte IntrDummy @ overwritten by gaxtapper
+	ldr r1, =gax2_new_p
+	ldr r1, [r1]
+	bx r1
+	.pool
+	thumb_func_end gax2_new
+
+	thumb_func_start gax2_init
 gax2_init:
-	.4byte IntrDummy @ overwritten by gaxtapper
+	ldr r1, =gax2_init_p
+	ldr r1, [r1]
+	bx r1
+	.pool
+	thumb_func_end gax2_init
+
+	thumb_func_start gax_irq
 gax_irq:
-	.4byte IntrDummy @ overwritten by gaxtapper
+	ldr r0, =gax_irq_p
+	ldr r0, [r0]
+	bx r0
+	.pool
+	thumb_func_end gax_irq
+
+	thumb_func_start gax_play
 gax_play:
+	ldr r0, =gax_play_p
+	ldr r0, [r0]
+	bx r0
+	.pool
+	thumb_func_end gax_play
+
+	.align 2, 0
+gax2_new_p:
 	.4byte IntrDummy @ overwritten by gaxtapper
+gax2_init_p:
+	.4byte IntrDummy @ overwritten by gaxtapper
+gax_irq_p:
+	.4byte IntrDummy @ overwritten by gaxtapper
+gax_play_p:
+	.4byte IntrDummy @ overwritten by gaxtapper
+
+myGaxSfxPointer:
+	.4byte 0
+
+@ minigsf parameter block start
+myGaxSongPointer:
+	.4byte 0x8000000
+myGaxFlags:
+	.2byte 0
+	.align 2, 0
+myGaxMixingRate:
+	.2byte 0xFFFF
+	.align 2, 0
+myGaxVolume:
+	.2byte 0xFFFF
+	.align 2, 0
 
 	.bss
 IntrMainBuffer:
