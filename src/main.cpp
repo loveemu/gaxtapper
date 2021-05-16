@@ -51,6 +51,7 @@ void ExtractCommand(args::Subparser& parser) {
 void InspectCommand(args::Subparser& parser) {
   args::PositionalList<std::filesystem::path> paths(
       parser, "romfiles", "The ROM files to be processed");
+  args::Flag single_line_arg(parser, "foo", "The foo flag", {'S', "single-line"});
 
   parser.Parse();
 
@@ -61,9 +62,14 @@ void InspectCommand(args::Subparser& parser) {
     }
 
     Cartridge cartridge = Cartridge::LoadFromFile(path);
-    std::cout << "# " << path.stem().string() << " (" << cartridge.game_code() << ")" << std::endl << std::endl;
-    Gaxtapper::Inspect(cartridge);
-    std::cout << std::endl;
+    if (!single_line_arg.Get()) {
+      std::cout << "# " << path.stem().string() << " (" << cartridge.game_code() << ")" << std::endl
+                << std::endl;
+      Gaxtapper::Inspect(cartridge);
+      std::cout << std::endl;
+    }
+    else
+      Gaxtapper::InspectSimple(cartridge, path.stem().string());
   }
 }
 
@@ -71,33 +77,11 @@ int main(int argc, const char** argv) {
   args::ArgumentParser parser(
       "An automated GSF ripper for GAX Sound Engine by Shin'en Multimedia.");
   args::Group commands(parser, "commands");
-  args::Command extract(commands, "extract", "TODO SAVE", &ExtractCommand);
-  args::Command inspect(commands, "inspect", "TODO INSPECT", &InspectCommand);
+  args::Command extract(commands, "extract", "Extract songs as gsflib and minigsfs", &ExtractCommand);
+  args::Command inspect(commands, "inspect", "Display the driver code/data information in ROM", &InspectCommand);
   args::GlobalOptions globals(parser, arguments);
 
   try {
-#if false
-    args::Command commit(commands, "commit", "record changes to the repository",
-                         &CommitCommand);
-    args::GlobalOptions globals(p, arguments);
-
-
-    args::HelpFlag help(parser, "help", "Show this help message and exit",
-                        {'h', "help"});
-    args::Flag inspect_arg(
-        parser, "inspect",
-        "Show the inspection result without saving files and quit",
-        {"inspect"});
-    args::ValueFlag<std::filesystem::path> outdir_arg(
-        parser, "directory",
-        "The output directory (the default is the working directory)", {'d'});
-    args::ValueFlag<std::filesystem::path> basename_arg(
-        parser, "basename", "The output filename (without extension)", {'o'});
-    args::Positional<std::filesystem::path> input_arg(
-        parser, "romfile", "The ROM file to be processed",
-        args::Options::Required);
-#endif
-
     try {
       if (argc < 2) throw args::Help(help.Name());
 
@@ -108,26 +92,6 @@ int main(int argc, const char** argv) {
       std::cout << parser;
       return EXIT_SUCCESS;
     }
-#if false
-    const auto in_path = args::get(input_arg);
-    if (!std::filesystem::exists(in_path)) {
-      std::cerr << in_path.string() << ": File does not exist" << std::endl;
-      return EXIT_FAILURE;
-    }
-
-    Cartridge cartridge = Cartridge::LoadFromFile(in_path);
-
-    if (inspect_arg) {
-      Gaxtapper::Inspect(cartridge);
-    } else {
-      const std::filesystem::path basename{
-          basename_arg ? args::get(basename_arg) : in_path.stem()};
-      const std::filesystem::path outdir{args::get(outdir_arg)};
-      std::string gsfby{"Gaxtapper"};
-
-      Gaxtapper::ConvertToGsfSet(cartridge, basename, outdir, gsfby);
-    }
-#endif
   } catch (args::Error& e) {
     std::cerr << e.what() << std::endl << parser;
     return EXIT_FAILURE;

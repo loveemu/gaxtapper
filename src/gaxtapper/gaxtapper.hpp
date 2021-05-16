@@ -17,6 +17,7 @@ class Gaxtapper {
                               const std::filesystem::path& outdir = "",
                               const std::string_view& gsfby = "");
   static void Inspect(const Cartridge& cartridge);
+  static void InspectSimple(const Cartridge& cartridge, std::string_view name);
 };
 
 }  // namespace gaxtapper

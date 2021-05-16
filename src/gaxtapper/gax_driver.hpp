@@ -50,11 +50,16 @@ class GaxDriver {
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // TODO: write a real driver
 
   static GaxVersion ParseVersionText(std::string_view version_text);
-  static std::string FindGaxVersionText(std::string_view rom);
-  static agbptr_t FindGax2New(std::string_view rom);
-  static agbptr_t FindGax2Init(std::string_view rom);
-  static agbptr_t FindGaxIrq(std::string_view rom);
-  static agbptr_t FindGaxPlay(std::string_view rom);
+  static std::string FindGaxVersionText(std::string_view rom,
+                                        std::string_view::size_type offset = 0);
+  static agbptr_t FindGax2New(std::string_view rom,
+                              std::string_view::size_type offset = 0);
+  static agbptr_t FindGax2Init(std::string_view rom,
+                               std::string_view::size_type offset = 0);
+  static agbptr_t FindGaxIrq(std::string_view rom,
+                             std::string_view::size_type offset = 0);
+  static agbptr_t FindGaxPlay(std::string_view rom,
+                              std::string_view::size_type offset = 0);
 };
 
 }  // namespace gaxtapper

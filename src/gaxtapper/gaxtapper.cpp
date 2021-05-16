@@ -91,4 +91,9 @@ void Gaxtapper::Inspect(const Cartridge& cartridge) {
   }
 }
 
+void Gaxtapper::InspectSimple(const Cartridge& cartridge, std::string_view name) {
+  if (const GaxDriverParam param = GaxDriver::Inspect(cartridge.rom()); !param.version_text().empty())
+    std::cout << std::left << std::setw(39) << param.version_text() << " " << name << std::endl;
+}
+
 }  // namespace gaxtapper
