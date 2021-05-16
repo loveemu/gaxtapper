@@ -53,6 +53,7 @@ set(SRCS
     src/gaxtapper/gsf_writer.cpp
     src/gaxtapper/gax_driver.cpp
     src/gaxtapper/gax_song_header.cpp
+    src/gaxtapper/gax_version.cpp
     src/gaxtapper/psf_writer.cpp
     src/gaxtapper/gaxtapper.cpp
 )

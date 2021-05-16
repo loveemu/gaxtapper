@@ -26,7 +26,7 @@ GaxDriverParam GaxDriver::Inspect(std::string_view rom) {
   param.set_gax2_init(FindGax2Init(rom));
   param.set_gax_irq(FindGaxIrq(rom));
   param.set_gax_play(FindGaxPlay(rom));
-  param.set_songs(FindGaxSongs(rom));
+  param.set_songs(GaxSongHeader::Scan(rom, param.version()));
   return param;
 }
 
@@ -69,17 +69,32 @@ std::string GaxDriver::NewMinigsfData(const GaxMinigsfDriverParam& param) {
   return std::string(data, 4);
 }
 
-GaxVersion GaxDriver::ParseVersionText(std::string_view version_text) {
-  if (version_text.size() < kVersionTextPrefixPattern.size() + 1)
-    return kGaxUnknownVersion;
-  if (version_text[kVersionTextPrefixPattern.size()] == '3')
-    return kGaxVersion3;
-  return kGaxUnknownVersion;
+std::ostream& GaxDriver::WriteGaxSongsAsTable(
+    std::ostream& stream, const std::vector<GaxSongHeader>& songs) {
+  using row_t = std::vector<std::string>;
+  const row_t header{"Name", "Artist", "Full Name", "Address"};
+  std::vector<row_t> items;
+  items.reserve(songs.size());
+  for (const auto& song : songs) {
+    items.push_back(row_t{song.parsed_name(), song.parsed_artist(), song.name(), to_string(song.address())});
+  }
+
+  tabulate(stream, header, items);
+
+  return stream;
 }
 
-std::string_view GaxDriver::FindGaxVersionText(std::string_view rom) {
+GaxVersion GaxDriver::ParseVersionText(std::string_view version_text) {
+  if (version_text.size() < kVersionTextPrefixPattern.size() + 1)
+    return GaxVersion{};
+  const char vchar = version_text[kVersionTextPrefixPattern.size()];
+  const auto v = (vchar == 'v' || vchar == 'V') ? 1 : 0;
+  return GaxVersion::Parse(version_text, kVersionTextPrefixPattern.size() + v);
+}
+
+std::string GaxDriver::FindGaxVersionText(std::string_view rom) {
   const auto offset = rom.find(kVersionTextPrefixPattern);
-  if (offset == std::string_view::npos) return rom.substr(rom.size());
+  if (offset == std::string_view::npos) return std::string{};
 
   // Limit the maximum length of the text for safety and speed.
   const std::string_view version_text_with_noise{rom.substr(offset, 128)};
@@ -94,7 +109,7 @@ std::string_view GaxDriver::FindGaxVersionText(std::string_view rom) {
   // Trim the copyright part.
   // " (C) Shin'en Multimedia. Code: B.Wodok"
   const auto copyright_offset = full_version_text.find_first_of('\xa9');
-  return std::string_view{
+  return std::string{
       copyright_offset != std::string_view::npos
           ? full_version_text.substr(0, std::max<std::string_view::size_type>(
                                             0, copyright_offset - 1))
@@ -135,16 +150,6 @@ agbptr_t GaxDriver::FindGaxPlay(std::string_view rom) {
   return offset != std::string_view::npos
              ? to_romptr(static_cast<uint32_t>(offset))
              : agbnullptr;
-}
-
-std::vector<GaxSongParam> GaxDriver::FindGaxSongs(std::string_view rom) {
-  const std::vector<GaxSongHeader> songs = GaxSongHeader::Scan(rom);
-  std::vector<GaxSongParam> song_params;
-  song_params.reserve(songs.size());
-  std::transform(
-      songs.begin(), songs.end(), std::back_inserter(song_params),
-      [](const GaxSongHeader& song) { return GaxSongParam{song.address()}; });
-  return song_params;
 }
 
 }  // namespace gaxtapper

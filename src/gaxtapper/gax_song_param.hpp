@@ -13,10 +13,9 @@ class GaxSongParam {
  public:
   GaxSongParam() = default;
 
-  GaxSongParam(agbptr_t address, std::string name = "", std::string copyright = "")
+  GaxSongParam(agbptr_t address, std::string name = "")
       : address_(address),
-        name_(std::move(name)),
-        copyright_(std::move(copyright)) {}
+        name_(std::move(name)) {}
 
   [[nodiscard]] bool ok() const noexcept {
     return address_ != agbnullptr;
@@ -26,20 +25,17 @@ class GaxSongParam {
 
   [[nodiscard]] std::string name() const noexcept { return name_; }
 
-  [[nodiscard]] std::string copyright() const noexcept { return copyright_; }
-
   void set_address(agbptr_t address) noexcept { address_ = address; }
 
   void set_name(std::string name) noexcept { name_ = std::move(name); }
 
-  void set_copyright(std::string copyright) noexcept {
-    copyright_ = std::move(copyright);
+  static GaxSongParam Of(const GaxSongHeader& header) noexcept {
+    return GaxSongParam{header.address(), header.parsed_name()};
   }
 
  private:
   agbptr_t address_ = agbnullptr;
   std::string name_;
-  std::string copyright_;
 };
 
 }  // namespace gaxtapper

@@ -3,25 +3,28 @@
 #ifndef GAXTAPPER_TABULATE_HPP_
 #define GAXTAPPER_TABULATE_HPP_
 
-#include <array>
 #include <iomanip>
+#include <vector>
 
 namespace gaxtapper {
 
-template <class _Ty, size_t _NumOfColumns, size_t _NumOfRows>
 static std::ostream& tabulate(
-    std::ostream& stream, std::array<_Ty, _NumOfColumns> header,
-    std::array<std::array<_Ty, _NumOfColumns>, _NumOfRows> items) {
+    std::ostream& stream, const std::vector<std::string>& header,
+    const std::vector<std::vector<std::string>>& rows) {
   // Determine column lengths.
   //
   // Note that it doesn't calculate proper lengths for non-ASCII characters.
-  std::array<size_t, _NumOfColumns> maxlength{};
-  for (size_t i = 0; i < header.size(); i++) {
-    maxlength[i] = header[i].size();
+  std::vector<size_t> maxlength;
+  for (auto cell = header.begin(); cell != header.end(); ++cell) {
+    maxlength.push_back(cell->size());
   }
-  for (const auto& item : items) {
-    for (size_t i = 0; i < item.size(); i++) {
-      if (maxlength[i] < item[i].size()) maxlength[i] = item[i].size();
+  for (const auto& row : rows) {
+    for (auto [i, cell] = std::tuple{0, row.begin()}; cell != row.end();
+         ++i, ++cell) {
+      if (i >= maxlength.size())
+        maxlength.push_back(cell->size());
+      else
+        maxlength[i] = std::max(cell->size(), maxlength[i]);
     }
   }
 
@@ -41,9 +44,9 @@ static std::ostream& tabulate(
   stream << std::setfill(' ');
 
   // Columns
-  for (const auto& item : items) {
-    for (size_t i = 0; i < item.size(); i++) {
-      stream << "|" << std::setw(maxlength[i]) << std::left << item[i] << " ";
+  for (const auto& row : rows) {
+    for (size_t i = 0; i < row.size(); i++) {
+      stream << "|" << std::setw(maxlength[i]) << std::left << row[i] << " ";
     }
     stream << "|" << std::endl;
   }

@@ -41,18 +41,20 @@ class GaxDriver {
 
   static std::string NewMinigsfData(const GaxMinigsfDriverParam& param);
 
+  static std::ostream& WriteGaxSongsAsTable(
+      std::ostream& stream, const std::vector<GaxSongHeader>& songs);
+
  private:
   static constexpr unsigned char gsf_driver_block[20] = {
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // TODO: write a real driver
 
   static GaxVersion ParseVersionText(std::string_view version_text);
-  static std::string_view FindGaxVersionText(std::string_view rom);
+  static std::string FindGaxVersionText(std::string_view rom);
   static agbptr_t FindGax2New(std::string_view rom);
   static agbptr_t FindGax2Init(std::string_view rom);
   static agbptr_t FindGaxIrq(std::string_view rom);
   static agbptr_t FindGaxPlay(std::string_view rom);
-  static std::vector<GaxSongParam> FindGaxSongs(std::string_view rom);
 };
 
 }  // namespace gaxtapper

@@ -32,9 +32,9 @@ class GaxMinigsfDriverParam {
   void set_song(GaxSongParam song) noexcept { song_ = std::move(song); }
 
   std::ostream& WriteAsTable(std::ostream& stream) const {
-    using row_t = std::array<std::string, 2>;
+    using row_t = std::vector<std::string>;
     const row_t header{"Name", "Address / Value"};
-    std::array items{
+    const std::vector items{
         row_t{"minigsf address", to_string(this->address())},
         row_t{"song address", to_string(this->song().address())},
     };

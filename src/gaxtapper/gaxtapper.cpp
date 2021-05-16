@@ -45,8 +45,10 @@ void Gaxtapper::ConvertToGsfSet(Cartridge& cartridge,
 
   constexpr agbptr_t minigsf_address =
       GaxDriver::minigsf_address(kGaxtapperGsfDriverAddress);
-  for (const GaxSongParam & song : param.songs()) {
-    std::filesystem::path minigsf_filename{song.name()};
+  for (const GaxSongHeader & song : param.songs()) {
+    if (song.num_channels() == 0) continue;
+
+    std::filesystem::path minigsf_filename{song.parsed_name()};
     if (minigsf_filename.empty()) {
       std::ostringstream song_id;
       song_id << std::setfill('0') << std::setw(8) << std::hex
@@ -64,7 +66,7 @@ void Gaxtapper::ConvertToGsfSet(Cartridge& cartridge,
         {"_lib", gsflib_path.filename().string()}};
     if (!gsfby.empty()) minigsf_tags["gsfby"] = gsfby;
 
-    GaxMinigsfDriverParam minigsf{minigsf_address, song};
+    GaxMinigsfDriverParam minigsf{minigsf_address, GaxSongParam::Of(song)};
     std::string minigsf_rom{GaxDriver::NewMinigsfData(minigsf)};
     GsfHeader minigsf_header{kEntrypoint, minigsf_address,
                              static_cast<agbsize_t>(minigsf_rom.size())};
@@ -75,13 +77,7 @@ void Gaxtapper::ConvertToGsfSet(Cartridge& cartridge,
 
 void Gaxtapper::Inspect(const Cartridge& cartridge) {
   const GaxDriverParam param = GaxDriver::Inspect(cartridge.rom());
-  const std::vector<GaxSongParam> & songs = param.songs();
-
-  GaxMinigsfDriverParam minigsf;
-  constexpr agbptr_t minigsf_address =
-      GaxDriver::minigsf_address(kGaxtapperGsfDriverAddress);
-  minigsf.set_address(minigsf_address);
-  minigsf.set_song(!songs.empty() ? songs[0] : GaxSongParam{});
+  const std::vector<GaxSongHeader> & songs = param.songs();
 
   std::cout << "Status: " << (param.ok() ? "OK" : "FAILED") << std::endl
             << std::endl;
@@ -89,8 +85,8 @@ void Gaxtapper::Inspect(const Cartridge& cartridge) {
   (void)param.WriteAsTable(std::cout);
   std::cout << std::endl;
 
-  std::cout << "minigsf information:" << std::endl << std::endl;
-  (void)minigsf.WriteAsTable(std::cout);
+  std::cout << "Songs:" << std::endl << std::endl;
+  (void)GaxDriver::WriteGaxSongsAsTable(std::cout, songs);
 }
 
 }  // namespace gaxtapper

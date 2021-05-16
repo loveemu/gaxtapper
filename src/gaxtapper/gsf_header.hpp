@@ -21,11 +21,11 @@ class GsfHeader {
         load_offset_{load_offset},
         load_size_{load_size} {}
 
-  const char* data() const noexcept { return str_.data(); }
-  constexpr size_type size() const noexcept { return kSize; }
-  agbptr_t entrypoint() const noexcept { return entrypoint_; }
-  agbptr_t load_offset() const noexcept { return load_offset_; }
-  agbptr_t load_size() const noexcept { return load_size_; }
+  [[nodiscard]] const char* data() const noexcept { return str_.data(); }
+  [[nodiscard]] constexpr size_type size() const noexcept { return kSize; }
+  [[nodiscard]] agbptr_t entrypoint() const noexcept { return entrypoint_; }
+  [[nodiscard]] agbptr_t load_offset() const noexcept { return load_offset_; }
+  [[nodiscard]] agbptr_t load_size() const noexcept { return load_size_; }
 
  private:
   static constexpr size_type kSize = 12;

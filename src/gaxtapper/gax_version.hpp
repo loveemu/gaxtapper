@@ -3,25 +3,38 @@
 #ifndef GAXTAPPER_GAX_VERSION_HPP_
 #define GAXTAPPER_GAX_VERSION_HPP_
 
-#include <string>
+#include <string_view>
 
 namespace gaxtapper {
 
-enum GaxVersion {
-  kGaxUnknownVersion,
-  kGaxVersion3
-};
+class GaxVersion {
+ public:
+  GaxVersion() = default;
 
-static std::string to_string(GaxVersion version) {
-  switch (version) {
-    case kGaxUnknownVersion:
-      return "(unknown)";
+  GaxVersion(int major_version, int minor_version)
+      : major_version_(major_version), minor_version_(minor_version) {}
 
-    case kGaxVersion3:
-      return "3";
+  constexpr operator bool() const { return major_version_ != 0 || minor_version_ != 0; }
+
+  [[nodiscard]] int major_version() const noexcept { return major_version_; }
+
+  [[nodiscard]] int minor_version() const noexcept { return minor_version_; }
+
+  void set_major_version(int major_version) noexcept {
+    major_version_ = major_version;
   }
-  return std::to_string(version);
-}
+
+  void set_minor_version(int minor_version) noexcept {
+    minor_version_ = minor_version;
+  }
+
+  static GaxVersion Parse(std::string_view s,
+                          std::string_view::size_type offset = 0);
+
+ private:
+  int major_version_ = 0;
+  int minor_version_ = 0;
+};
 
 }  // namespace gaxtapper
 

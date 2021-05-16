@@ -3,12 +3,10 @@
 #ifndef GAXTAPPER_GAX_DRIVER_PARAM_HPP_
 #define GAXTAPPER_GAX_DRIVER_PARAM_HPP_
 
-#include <array>
 #include <string>
-#include <string_view>
 #include <utility>
 
-#include "gax_song_param.hpp"
+#include "gax_song_header.hpp"
 #include "gax_version.hpp"
 #include "tabulate.hpp"
 #include "types.hpp"
@@ -20,7 +18,7 @@ class GaxDriverParam {
   GaxDriverParam() = default;
 
   [[nodiscard]] bool ok() const noexcept {
-    return version_ != kGaxUnknownVersion && gax2_new_ != agbnullptr &&
+    return version_ && gax2_new_ != agbnullptr &&
            gax2_init_ != agbnullptr && gax_irq_ != agbnullptr &&
            gax_play_ != agbnullptr && !songs_.empty();
   }
@@ -37,11 +35,13 @@ class GaxDriverParam {
 
   [[nodiscard]] agbptr_t gax_play() const noexcept { return gax_play_; }
 
-  [[nodiscard]] const std::vector<GaxSongParam> & songs() const noexcept { return songs_; }
+  [[nodiscard]] const std::vector<GaxSongHeader> & songs() const noexcept { return songs_; }
 
   void set_version(GaxVersion version) noexcept { version_ = version; }
 
-  void set_version_text(std::string_view version_text) noexcept { version_text_ = version_text; }
+  void set_version_text(std::string version_text) noexcept {
+    version_text_ = std::move(version_text);
+  }
 
   void set_gax2_new(agbptr_t address) noexcept { gax2_new_ = address; }
 
@@ -51,15 +51,16 @@ class GaxDriverParam {
 
   void set_gax_play(agbptr_t address) noexcept { gax_play_ = address; }
 
-  void set_songs(std::vector<GaxSongParam> songs) noexcept {
+  void set_songs(std::vector<GaxSongHeader> songs) noexcept {
     songs_ = std::move(songs);
   }
 
   std::ostream& WriteAsTable(std::ostream& stream) const {
-    using row_t = std::array<std::string, 2>;
+    using row_t = std::vector<std::string>;
     const row_t header{"Name", "Address / Value"};
-    const std::array items{
-        row_t{"version", to_string(this->version())},
+    const std::vector items{
+        row_t{"major_version", std::to_string(this->version().major_version())},
+        row_t{"minor_version", std::to_string(this->version().minor_version())},
         row_t{"version_text", this->version_text()},
         row_t{"gax2_new", to_string(this->gax2_new())},
         row_t{"gax2_init", to_string(this->gax2_init())},
@@ -74,13 +75,13 @@ class GaxDriverParam {
   }
 
  private:
-  GaxVersion version_ = kGaxUnknownVersion;
+  GaxVersion version_;
   std::string version_text_;
   agbptr_t gax2_init_ = agbnullptr;
   agbptr_t gax2_new_ = agbnullptr;
   agbptr_t gax_irq_ = agbnullptr;
   agbptr_t gax_play_ = agbnullptr;
-  std::vector<GaxSongParam> songs_;
+  std::vector<GaxSongHeader> songs_;
 };
 
 }  // namespace gaxtapper
