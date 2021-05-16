@@ -17,6 +17,10 @@ class GaxSongHeader {
  public:
   GaxSongHeader() = default;
 
+  constexpr operator bool() const {
+    return address_ != agbnullptr;
+  }
+
   [[nodiscard]] std::string name() const noexcept { return name_; }
 
   [[nodiscard]] std::string parsed_name() const noexcept { return parsed_name_; }

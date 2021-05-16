@@ -83,10 +83,12 @@ void Gaxtapper::Inspect(const Cartridge& cartridge) {
             << std::endl;
 
   (void)param.WriteAsTable(std::cout);
-  std::cout << std::endl;
 
-  std::cout << "Songs:" << std::endl << std::endl;
-  (void)GaxDriver::WriteGaxSongsAsTable(std::cout, songs);
+  if (!songs.empty()) {
+    std::cout << std::endl;
+    std::cout << "Songs:" << std::endl << std::endl;
+    (void)GaxDriver::WriteGaxSongsAsTable(std::cout, songs);
+  }
 }
 
 }  // namespace gaxtapper

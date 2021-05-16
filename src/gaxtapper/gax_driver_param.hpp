@@ -37,6 +37,8 @@ class GaxDriverParam {
 
   [[nodiscard]] const std::vector<GaxSongHeader> & songs() const noexcept { return songs_; }
 
+  [[nodiscard]] GaxSongHeader fx() const noexcept { return fx_; }
+
   void set_version(GaxVersion version) noexcept { version_ = version; }
 
   void set_version_text(std::string version_text) noexcept {
@@ -51,8 +53,16 @@ class GaxDriverParam {
 
   void set_gax_play(agbptr_t address) noexcept { gax_play_ = address; }
 
-  void set_songs(std::vector<GaxSongHeader> songs) noexcept {
+  void set_songs(std::vector<GaxSongHeader> songs) {
     songs_ = std::move(songs);
+
+    fx_ = GaxSongHeader{};
+    for (const auto & song : songs_) {
+      if (song.num_channels() == 0) {
+        fx_ = song;
+        break;
+      }
+    }
   }
 
   std::ostream& WriteAsTable(std::ostream& stream) const {
@@ -66,7 +76,8 @@ class GaxDriverParam {
         row_t{"gax2_init", to_string(this->gax2_init())},
         row_t{"gax_irq", to_string(this->gax_irq())},
         row_t{"gax_play", to_string(this->gax_play())},
-        row_t{"len(songs)", std::to_string(this->songs().size())}
+        row_t{"len(songs)", std::to_string(this->songs().size())},
+        row_t{"fx", to_string(this->fx() ? this->fx().address() : agbnullptr)}
     };
 
     tabulate(stream, header, items);
@@ -82,6 +93,7 @@ class GaxDriverParam {
   agbptr_t gax_irq_ = agbnullptr;
   agbptr_t gax_play_ = agbnullptr;
   std::vector<GaxSongHeader> songs_;
+  GaxSongHeader fx_;
 };
 
 }  // namespace gaxtapper

@@ -3,7 +3,6 @@
 #ifndef GAXTAPPER_GAX_MINIGSF_DRIVER_PARAM_HPP_
 #define GAXTAPPER_GAX_MINIGSF_DRIVER_PARAM_HPP_
 
-#include <array>
 #include <string>
 #include <utility>
 #include "gax_song_param.hpp"
