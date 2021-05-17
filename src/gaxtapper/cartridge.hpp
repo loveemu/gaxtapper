@@ -4,6 +4,7 @@
 #define CARTRIDGE_HPP_
 
 #include <cstdint>
+#include <cstring>
 #include <filesystem>
 #include <string>
 #include "types.hpp"
