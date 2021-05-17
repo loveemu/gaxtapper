@@ -125,7 +125,7 @@ std::string GaxSongHeader::TryFindNameV3(std::string_view rom) const {
   agbsize_t offset = end_offset;
   int num_quotes = 0;
   while (offset > 0) {
-    constexpr std::uint8_t kCopyrightChar = static_cast<char>(0xa9);
+    constexpr auto kCopyrightChar = static_cast<std::uint8_t>(0xa9);
     const std::uint8_t c = rom[offset - 1];
     if (!((c >= 0x20 && c <= 0x7e) || c == kCopyrightChar)) break;
 

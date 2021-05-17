@@ -3,6 +3,7 @@
 #ifndef GAXTAPPER_TABULATE_HPP_
 #define GAXTAPPER_TABULATE_HPP_
 
+#include <algorithm>
 #include <iomanip>
 #include <vector>
 
@@ -19,8 +20,8 @@ static std::ostream& tabulate(
     maxlength.push_back(cell->size());
   }
   for (const auto& row : rows) {
-    for (auto [i, cell] = std::tuple{0, row.begin()}; cell != row.end();
-         ++i, ++cell) {
+    for (auto [i, cell] = std::tuple{static_cast<size_t>(0), row.begin()};
+         cell != row.end(); ++i, ++cell) {
       if (i >= maxlength.size())
         maxlength.push_back(cell->size());
       else
