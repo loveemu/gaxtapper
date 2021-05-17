@@ -6,7 +6,7 @@
 	.syntax unified
 
 	.set INTR_MAIN_BUFFER_SIZE, 0xA4
-	.set GAX_WORK_RAM_SIZE, 0x1000
+	.set GAX_WORK_RAM_SIZE, 0x1800
 
 	.text
 
@@ -34,32 +34,36 @@ GaxtapperSignature:
 	.asciz "Gaxtapper 0.01 \xa9 loveemu"
 	.align 2, 0 @ Don't pad with nop.
 	.size GaxtapperSignature, .-GaxtapperSignature
-	.pool
 
 AgbMain_Init:
-	bl InitIntrHandlers
-
 	mov r4, sp
 	movs r0, r4
 	bl gax2_new
 
-	ldr r0, =myGaxFlags
+	ldr r0, myGaxFlags
 	strh r0, [r4, #o_Gax2Params_flags]
-	ldr r0, =myGaxMixingRate
+	ldr r0, myGaxMixingRate
 	strh r0, [r4, #o_Gax2Params_mixing_rate]
 	strh r0, [r4, #o_Gax2Params_fx_mixing_rate]
-	ldr r0, =myGaxVolume
+	ldr r0, myGaxVolume
 	strh r0, [r4, #o_Gax2Params_volume]
 	movs r0, #0
 	strh r0, [r4, #o_Gax2Params_num_fx_channels]
-	ldr r0, =myGaxSongPointer
-	str r0, [r4, #o_Gax2Params_music]
-	ldr r0, =myGaxSfxPointer
-	str r0, [r4, #o_Gax2Params_sfx]
+	ldr r0, myGaxSfxPointer
+	movs r3, #o_Gax2Params_sfx @ gaxtapper will replace the offset if necessary
+	adds r3, r3, r4
+	str r0, [r3]
+	ldr r0, myGaxSongPointer
+	adds r3, r3, #o_Gax2Params_music - o_Gax2Params_sfx
+	str r0, [r3]
 	ldr r0, =GAX_WORK_RAM_SIZE
 	str r0, [r4, #o_Gax2Params_wram_size]
+	ldr r0, =GaxWorkRam
+	str r0, [r4, #o_Gax2Params_wram]
 	movs r0, r4
 	bl gax2_init
+
+	bl InitIntrHandlers
 
 AgbMain_Loop:
 	svc 2
@@ -112,32 +116,28 @@ VBlankIntr:
 
 	thumb_func_start gax2_new
 gax2_new:
-	ldr r1, =gax2_new_p
-	ldr r1, [r1]
+	ldr r1, gax2_new_p
 	bx r1
 	.pool
 	thumb_func_end gax2_new
 
 	thumb_func_start gax2_init
 gax2_init:
-	ldr r1, =gax2_init_p
-	ldr r1, [r1]
+	ldr r1, gax2_init_p
 	bx r1
 	.pool
 	thumb_func_end gax2_init
 
 	thumb_func_start gax_irq
 gax_irq:
-	ldr r0, =gax_irq_p
-	ldr r0, [r0]
+	ldr r0, gax_irq_p
 	bx r0
 	.pool
 	thumb_func_end gax_irq
 
 	thumb_func_start gax_play
 gax_play:
-	ldr r0, =gax_play_p
-	ldr r0, [r0]
+	ldr r0, gax_play_p
 	bx r0
 	.pool
 	thumb_func_end gax_play
@@ -159,13 +159,13 @@ myGaxSfxPointer:
 myGaxSongPointer:
 	.4byte 0x8000000
 myGaxFlags:
-	.2byte 0
+	.2byte 0 @ default (repeat forever)
 	.align 2, 0
 myGaxMixingRate:
-	.2byte 0xFFFF
+	.2byte 0xFFFF @ default
 	.align 2, 0
 myGaxVolume:
-	.2byte 0xFFFF
+	.2byte 0xFFFF @ default
 	.align 2, 0
 
 	.bss
