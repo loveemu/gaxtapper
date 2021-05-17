@@ -70,6 +70,8 @@ void Gaxtapper::ConvertToGsfSet(Cartridge& cartridge,
     std::string minigsf_rom{GaxDriver::NewMinigsfData(minigsf)};
     GsfHeader minigsf_header{kEntrypoint, minigsf_address,
                              static_cast<agbsize_t>(minigsf_rom.size())};
+    if (!minigsf.song().artist().empty())
+      minigsf_tags["artist"] = minigsf.song().artist();
     GsfWriter::SaveToFile(minigsf_path, minigsf_header, minigsf_rom,
                           std::move(minigsf_tags));
   }
