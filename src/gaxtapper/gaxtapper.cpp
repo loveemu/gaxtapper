@@ -86,7 +86,7 @@ void Gaxtapper::Inspect(const Cartridge& cartridge) {
 
   if (!songs.empty()) {
     std::cout << std::endl;
-    std::cout << "Songs:" << std::endl << std::endl;
+    std::cout << "Songs and Samples:" << std::endl << std::endl;
     (void)GaxDriver::WriteGaxSongsAsTable(std::cout, songs);
   }
 }
