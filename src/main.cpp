@@ -41,7 +41,7 @@ void ExtractCommand(args::Subparser& parser) {
   Cartridge cartridge = Cartridge::LoadFromFile(in_path);
 
   const std::filesystem::path basename{basename_arg ? args::get(basename_arg)
-                                                    : in_path.stem()};
+                                                    : cartridge.full_game_code()};
   const std::filesystem::path outdir{args::get(outdir_arg)};
   const std::string gsfby{"Gaxtapper"};
 
