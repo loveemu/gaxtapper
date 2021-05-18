@@ -12,6 +12,7 @@
 #include "gax_driver.hpp"
 #include "gax_driver_param.hpp"
 #include "gax_minigsf_driver_param.hpp"
+#include "path.hpp"
 
 namespace gaxtapper {
 
@@ -48,7 +49,8 @@ void Gaxtapper::ConvertToGsfSet(Cartridge& cartridge,
   for (const GaxSongHeader & song : param.songs()) {
     if (song.num_channels() == 0) continue;
 
-    std::filesystem::path minigsf_filename{song.parsed_name()};
+    std::filesystem::path minigsf_filename{
+        ToSafeFilenameSegment(song.parsed_name())};
     if (minigsf_filename.empty()) {
       std::ostringstream song_id;
       song_id << std::setfill('0') << std::setw(8) << std::hex
