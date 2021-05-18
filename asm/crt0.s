@@ -97,8 +97,6 @@ IntrMain:
 	bne . @ spin
 IntrMain_FoundIntr:
 	strh r0, [r3, #OFFSET_REG_IF - OFFSET_REG_IE]
-	mov r1, 0x8
-	strh r1, [r3, #OFFSET_REG_IE - OFFSET_REG_IE]
 	mrs r3, cpsr
 	bic r3, r3, #PSR_I_BIT | PSR_F_BIT | PSR_MODE_MASK
 	orr r3, r3, #PSR_SYS_MODE
