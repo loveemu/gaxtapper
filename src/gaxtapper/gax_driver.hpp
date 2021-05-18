@@ -14,7 +14,7 @@ namespace gaxtapper {
 
 class GaxDriver {
  public:
-  static constexpr agbsize_t kGax2ParamsSfxOffset = 0x146;
+  static constexpr agbsize_t kGax2ParamsSfxOffset = 0x144;
   static constexpr agbsize_t kGax2NewOffset = 0x1dc;
   static constexpr agbsize_t kGax2InitOffset = 0x1e0;
   static constexpr agbsize_t kGaxIrqOffset = 0x1e4;

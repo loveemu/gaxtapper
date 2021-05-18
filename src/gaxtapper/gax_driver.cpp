@@ -54,6 +54,12 @@ void GaxDriver::InstallGsfDriver(std::string& rom, agbptr_t address,
   WriteInt32L(&rom[offset + kGaxIrqOffset], param.gax_irq() | 1);
   WriteInt32L(&rom[offset + kGaxPlayOffset], param.gax_play() | 1);
 
+  if (param.version().major_version() == 3) {
+    const std::uint8_t sfxOffset =
+        param.version().minor_version() < 5 ? 0x2c : 0x30;
+    WriteInt8(&rom[offset + kGax2ParamsSfxOffset], sfxOffset);
+  }
+
   WriteInt32L(rom.data(), make_arm_b(0x8000000, address));
 }
 
