@@ -73,6 +73,7 @@ set(HDRS
     src/gaxtapper/gax_version.hpp
     src/gaxtapper/gax_driver.hpp
     src/gaxtapper/gax_driver_param.hpp
+    src/gaxtapper/path.hpp
     src/gaxtapper/psf_writer.hpp
     src/gaxtapper/gaxtapper.hpp
     src/gaxtapper/tabulate.hpp
