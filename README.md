@@ -4,4 +4,4 @@ Gaxtapper
 
 Automated GSF ripper for GAX Sound Engine
 
-**WARNING**: Work in progress. It does not work at the moment.
+**WARNING**: This is still under development. Please use it for testing and evaluation purposes only.
