@@ -17,6 +17,8 @@
 
 namespace gaxtapper {
 
+static constexpr agbptr_t kGaxDriverDefaultWorkAddress = 0x3000000;
+
 static constexpr std::string_view kVersionTextPrefixPattern{"GAX Sound Engine "};
 
 GaxDriverParam GaxDriver::Inspect(std::string_view rom) {
@@ -33,6 +35,7 @@ GaxDriverParam GaxDriver::Inspect(std::string_view rom) {
 }
 
 void GaxDriver::InstallGsfDriver(std::string& rom, agbptr_t address,
+                                 agbptr_t work_address,
                                  const GaxDriverParam& param) {
   if (!is_romptr(address))
     throw std::invalid_argument("The gsf driver address is not valid.");
@@ -48,11 +51,18 @@ void GaxDriver::InstallGsfDriver(std::string& rom, agbptr_t address,
   if (offset + gsf_driver_size() > rom.size())
     throw std::out_of_range("The address of gsf driver block is out of range.");
 
+  if (work_address == agbnullptr) {
+    // TODO: Automatically avoid conflict with GAX
+    work_address = kGaxDriverDefaultWorkAddress;
+  }
+
   std::memcpy(&rom[offset], gsf_driver_block, gsf_driver_size());
   WriteInt32L(&rom[offset + kGax2NewOffset], param.gax2_new() | 1);
   WriteInt32L(&rom[offset + kGax2InitOffset], param.gax2_init() | 1);
   WriteInt32L(&rom[offset + kGaxIrqOffset], param.gax_irq() | 1);
   WriteInt32L(&rom[offset + kGaxPlayOffset], param.gax_play() | 1);
+
+  WriteInt32L(&rom[offset + kMyWorkRamOffset], work_address);
 
   if (param.version().major_version() == 3) {
     const std::uint8_t sfx_offset =

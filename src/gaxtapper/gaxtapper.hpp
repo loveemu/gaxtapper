@@ -13,6 +13,7 @@ class Gaxtapper {
   static void ConvertToGsfSet(Cartridge& cartridge,
                               const std::filesystem::path& basename,
                               agbptr_t driver_address = agbnullptr,
+                              agbptr_t work_address = agbnullptr,
                               const std::filesystem::path& outdir = "",
                               const std::string_view& gsfby = "");
   static void Inspect(const Cartridge& cartridge);

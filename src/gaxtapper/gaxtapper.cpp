@@ -19,8 +19,34 @@ namespace gaxtapper {
 void Gaxtapper::ConvertToGsfSet(Cartridge& cartridge,
                                 const std::filesystem::path& basename,
                                 agbptr_t driver_address,
+                                agbptr_t work_address,
                                 const std::filesystem::path& outdir,
                                 const std::string_view& gsfby) {
+  if (driver_address != agbnullptr) {
+    if (!is_romptr(driver_address)) {
+      throw std::invalid_argument(
+          "The entrypoint address must point to a ROM section "
+          "(0x8000000-0x9FFFFFF).");
+    }
+
+    if (driver_address % 4 != 0) {
+      throw std::invalid_argument(
+          "The entrypoint address must be a multiple of 4.");
+    }
+  }
+
+  if (work_address != agbnullptr) {
+    if (!is_ewramptr(work_address) && !is_iwramptr(work_address)) {
+      throw std::invalid_argument(
+          "The work RAM address must point to a RAM section.");
+    }
+
+    if (work_address % 4 != 0) {
+      throw std::invalid_argument(
+          "The work RAM address must be a multiple of 4.");
+    }
+  }
+
   const GaxDriverParam param = GaxDriver::Inspect(cartridge.rom());
   if (!param.ok()) {
     std::ostringstream message;
@@ -40,7 +66,7 @@ void Gaxtapper::ConvertToGsfSet(Cartridge& cartridge,
     }
   }
 
-  GaxDriver::InstallGsfDriver(cartridge.rom(), driver_address, param);
+  GaxDriver::InstallGsfDriver(cartridge.rom(), driver_address, work_address, param);
 
   if (!outdir.empty())
     create_directories(outdir);

@@ -13,7 +13,7 @@
 
 	.set INTR_MAIN_BUFFER_SIZE, 0x94
 	.set INTR_TABLE_LENGTH, 2
-	.set GAX_WORK_RAM_SIZE, 0x7E00 @ Assume that you have enough memory space, regardless of whether it is actually available
+	.set GAX_WORK_RAM_SIZE, 0x5000 @ Assume that you have enough memory space, regardless of whether it is actually available
 
 	.global Start
 
@@ -113,7 +113,7 @@ GaxtapperSignature:
 	.align 2, 0 @ Don't pad with nop.
 	.size GaxtapperSignature, .-GaxtapperSignature
 DriverWorkRamStart:
-	.4byte 0x3000000    @ PATCH: gaxtapper may change the value
+	.4byte 0x3000000    @ PATCH: gaxtapper will change the value
 myMinigsfParams:            @ PATCH: gaxtapper will change the value
 	.4byte 0x8000000    @ music
 	.4byte 0x8000000    @ fx

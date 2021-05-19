@@ -27,12 +27,42 @@ void ExtractCommand(args::Subparser& parser) {
   args::ValueFlag<std::filesystem::path> basename_arg(
       parser, "basename", "The output filename (without extension)", {'o'});
   args::ValueFlag<std::string> entrypoint_arg(
-      parser, "entrypoint", "Entrypoint address where the driver is inserted", {"entrypoint"});
+      parser, "entrypoint",
+      "Entrypoint address where the driver is inserted (advanced)",
+      {"entrypoint"});
+  args::ValueFlag<std::string> work_arg(
+      parser, "work",
+      "RAM address that the driver uses as a work space (advanced)",
+      {"work"});
   args::Positional<std::filesystem::path> input_arg(
       parser, "romfile", "The ROM file to be processed",
       args::Options::Required);
 
   parser.Parse();
+
+  agbptr_t entrypoint = agbnullptr;
+  if (entrypoint_arg) {
+    std::string_view s{entrypoint_arg.Get()};
+    if (s.substr(0, 2) == "0X" || s.substr(0, 2) == "0x") s.remove_prefix(2);
+    if (auto [ptr, ec] =
+            std::from_chars(s.data(), s.data() + s.size(), entrypoint, 16);
+        ec != std::errc{}) {
+      throw std::invalid_argument(
+          "The entrypoint address must be specified as a hexadecimal string.");
+    }
+  }
+
+  agbptr_t work_address = agbnullptr;
+  if (work_arg) {
+    std::string_view s{work_arg.Get()};
+    if (s.substr(0, 2) == "0X" || s.substr(0, 2) == "0x") s.remove_prefix(2);
+    if (auto [ptr, ec] =
+            std::from_chars(s.data(), s.data() + s.size(), work_address, 16);
+        ec != std::errc{}) {
+      throw std::invalid_argument(
+          "The work RAM address must be specified as a hexadecimal string.");
+    }
+  }
 
   const auto in_path = args::get(input_arg);
   if (!exists(in_path)) {
@@ -49,25 +79,8 @@ void ExtractCommand(args::Subparser& parser) {
   const std::filesystem::path outdir{args::get(outdir_arg)};
   const std::string gsfby{"Gaxtapper"};
 
-  agbptr_t entrypoint = agbnullptr;
-  std::string entrypoint_str{entrypoint_arg.Get()};
-  if (!entrypoint_str.empty()) {
-    std::string_view s{entrypoint_str};
-    if (s.substr(0, 2) == "0X" || s.substr(0, 2) == "0x") s.remove_prefix(2);
-    if (auto [ptr, ec] =
-            std::from_chars(s.data(), s.data() + s.size(), entrypoint, 16);
-        ec != std::errc{}) {
-      throw std::invalid_argument(
-          "The entrypoint address must be specified as a hexadecimal string.");
-    }
-
-    if (!is_romptr(entrypoint)) {
-      throw std::invalid_argument(
-          "The entrypoint address must point to a ROM section (0x8000000-0x9FFFFFF).");
-    }
-  }
-
-  Gaxtapper::ConvertToGsfSet(cartridge, basename, entrypoint, outdir, gsfby);
+  Gaxtapper::ConvertToGsfSet(cartridge, basename, entrypoint, work_address,
+                             outdir, gsfby);
 }
 
 void InspectCommand(args::Subparser& parser) {

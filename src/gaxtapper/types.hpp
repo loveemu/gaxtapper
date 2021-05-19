@@ -16,6 +16,14 @@ static constexpr auto agbnullptr{static_cast<agbptr_t>(-1)};
 
 static constexpr auto agbnpos{static_cast<agbsize_t>(-1)};
 
+static constexpr bool is_ewramptr(agbptr_t addr) {
+  return addr >= 0x2000000 && addr <= 0x203ffff;
+}
+
+static constexpr bool is_iwramptr(agbptr_t addr) {
+  return addr >= 0x3000000 && addr <= 0x3007fff;
+}
+
 static constexpr bool is_romptr(agbptr_t addr) {
   return addr >= 0x8000000 && addr <= 0x9ffffff;
 }
