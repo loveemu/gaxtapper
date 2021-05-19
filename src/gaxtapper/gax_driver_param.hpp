@@ -18,14 +18,16 @@ class GaxDriverParam {
   GaxDriverParam() = default;
 
   [[nodiscard]] bool ok() const noexcept {
-    return version_ && gax2_new_ != agbnullptr &&
-           gax2_init_ != agbnullptr && gax_irq_ != agbnullptr &&
-           gax_play_ != agbnullptr && !songs_.empty();
+    return version_ && gax2_estimate_ != agbnullptr &&
+           gax2_new_ != agbnullptr && gax2_init_ != agbnullptr &&
+           gax_irq_ != agbnullptr && gax_play_ != agbnullptr && !songs_.empty();
   }
 
   [[nodiscard]] GaxVersion version() const noexcept { return version_; }
 
   [[nodiscard]] std::string version_text() const noexcept { return version_text_; }
+
+  [[nodiscard]] agbptr_t gax2_estimate() const noexcept { return gax2_estimate_; }
 
   [[nodiscard]] agbptr_t gax2_new() const noexcept { return gax2_new_; }
 
@@ -44,6 +46,8 @@ class GaxDriverParam {
   void set_version_text(std::string version_text) noexcept {
     version_text_ = std::move(version_text);
   }
+
+  void set_gax2_estimate(agbptr_t address) noexcept { gax2_estimate_ = address; }
 
   void set_gax2_new(agbptr_t address) noexcept { gax2_new_ = address; }
 
@@ -72,6 +76,7 @@ class GaxDriverParam {
         row_t{"major_version", std::to_string(this->version().major_version())},
         row_t{"minor_version", std::to_string(this->version().minor_version())},
         row_t{"version_text", this->version_text()},
+        row_t{"gax2_estimate", to_string(this->gax2_estimate())},
         row_t{"gax2_new", to_string(this->gax2_new())},
         row_t{"gax2_init", to_string(this->gax2_init())},
         row_t{"gax_irq", to_string(this->gax_irq())},
@@ -88,6 +93,7 @@ class GaxDriverParam {
  private:
   GaxVersion version_;
   std::string version_text_;
+  agbptr_t gax2_estimate_ = agbnullptr;
   agbptr_t gax2_init_ = agbnullptr;
   agbptr_t gax2_new_ = agbnullptr;
   agbptr_t gax_irq_ = agbnullptr;

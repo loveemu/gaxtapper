@@ -13,7 +13,6 @@
 
 	.set INTR_MAIN_BUFFER_SIZE, 0x94
 	.set INTR_TABLE_LENGTH, 2
-	.set GAX_WORK_RAM_SIZE, 0x5000 @ Assume that you have enough memory space, regardless of whether it is actually available
 
 	.global Start
 
@@ -90,8 +89,9 @@ AgbMain_Init:
 	adds r3, r3, #o_Gax2Params_music - o_Gax2Params_fx
 	str r0, [r3]
 
-	ldr r0, =GAX_WORK_RAM_SIZE
-	str r0, [r4, #o_Gax2Params_wram_size]
+	movs r0, r4
+	bl gax2_estimate
+
 	movs r1, #(INTR_MAIN_BUFFER_SIZE + INTR_TABLE_LENGTH * 4)
 	ldr r0, DriverWorkRamStart
 	adds r0, r0, r1
@@ -268,13 +268,22 @@ VBlankIntr:
 	.pool
 	thumb_func_end VBlankIntr
 
+	thumb_func_start gax2_estimate
+gax2_estimate:
+	ldr r1, gax2_estimate_p
+	bx r1
+	.align 2, 0
+gax2_estimate_p:
+	.4byte 0x8000000 @ PATCH: gaxtapper will change the value
+	thumb_func_end gax2_estimate
+
 	thumb_func_start gax2_new
 gax2_new:
 	ldr r1, gax2_new_p
 	bx r1
 	.align 2, 0
 gax2_new_p:
-	.4byte IntrDummy @ PATCH: gaxtapper will change the value
+	.4byte 0x8000000 @ PATCH: gaxtapper will change the value
 	thumb_func_end gax2_new
 
 	thumb_func_start gax2_init
@@ -283,7 +292,7 @@ gax2_init:
 	bx r1
 	.align 2, 0
 gax2_init_p:
-	.4byte IntrDummy @ PATCH: gaxtapper will change the value
+	.4byte 0x8000000 @ PATCH: gaxtapper will change the value
 	thumb_func_end gax2_init
 
 	thumb_func_start gax_irq
@@ -292,7 +301,7 @@ gax_irq:
 	bx r0
 	.align 2, 0
 gax_irq_p:
-	.4byte IntrDummy @ PATCH: gaxtapper will change the value
+	.4byte 0x8000000 @ PATCH: gaxtapper will change the value
 	thumb_func_end gax_irq
 
 	thumb_func_start gax_play
@@ -301,6 +310,6 @@ gax_play:
 	bx r0
 	.align 2, 0
 gax_play_p:
-	.4byte IntrDummy @ PATCH: gaxtapper will change the value
+	.4byte 0x8000000 @ PATCH: gaxtapper will change the value
 	thumb_func_end gax_play
 	.align 2, 0

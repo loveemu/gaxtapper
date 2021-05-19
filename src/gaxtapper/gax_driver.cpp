@@ -25,8 +25,9 @@ GaxDriverParam GaxDriver::Inspect(std::string_view rom) {
   GaxDriverParam param;
   param.set_version_text(FindGaxVersionText(rom));
   param.set_version(ParseVersionText(param.version_text()));
-  param.set_gax2_new(FindGax2New(rom));
-  const auto code_offset = to_offset(param.gax2_new());
+  param.set_gax2_estimate(FindGax2Estimate(rom));
+  const auto code_offset = to_offset(param.gax2_estimate());
+  param.set_gax2_new(FindGax2New(rom, code_offset));
   param.set_gax2_init(FindGax2Init(rom, code_offset));
   param.set_gax_irq(FindGaxIrq(rom, code_offset));
   param.set_gax_play(FindGaxPlay(rom, code_offset));
@@ -57,6 +58,7 @@ void GaxDriver::InstallGsfDriver(std::string& rom, agbptr_t address,
   }
 
   std::memcpy(&rom[offset], gsf_driver_block, gsf_driver_size());
+  WriteInt32L(&rom[offset + kGax2EstimateOffset], param.gax2_estimate() | 1);
   WriteInt32L(&rom[offset + kGax2NewOffset], param.gax2_new() | 1);
   WriteInt32L(&rom[offset + kGax2InitOffset], param.gax2_init() | 1);
   WriteInt32L(&rom[offset + kGaxIrqOffset], param.gax_irq() | 1);
@@ -137,6 +139,17 @@ std::string GaxDriver::FindGaxVersionText(std::string_view rom,
           ? full_version_text.substr(0, std::max<std::string_view::size_type>(
                                             0, copyright_offset - 1))
           : full_version_text};
+}
+
+agbptr_t GaxDriver::FindGax2Estimate(std::string_view rom,
+                                std::string_view::size_type offset) {
+  using namespace std::string_view_literals;
+  constexpr std::string_view pattern{
+      "\xf0\xb5\x57\x46\x4e\x46\x45\x46\xe0\xb4\x82\xb0\x07\x1c\x00\x24\x00\x20\x00\x90"sv};
+  const auto start_offset = rom.find(pattern, offset);
+  return start_offset != std::string_view::npos
+             ? to_romptr(static_cast<uint32_t>(start_offset))
+             : agbnullptr;
 }
 
 agbptr_t GaxDriver::FindGax2New(std::string_view rom,
