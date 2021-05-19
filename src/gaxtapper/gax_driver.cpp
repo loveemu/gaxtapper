@@ -57,7 +57,7 @@ void GaxDriver::InstallGsfDriver(std::string& rom, agbptr_t address,
   if (param.version().major_version() == 3) {
     const std::uint8_t sfx_offset =
         param.version().minor_version() < 5 ? 0x2c : 0x30;
-    WriteInt8(&rom[offset + kGax2ParamsSfxOffset], sfx_offset);
+    WriteInt8(&rom[offset + kGax2ParamFxImmOffset], sfx_offset);
   }
 
   WriteInt32L(rom.data(), make_arm_b(0x8000000, address));
@@ -74,7 +74,7 @@ std::string GaxDriver::NewMinigsfData(const GaxMinigsfDriverParam& param) {
   }
 
   std::array<char, kMinigsfParamSize> data{0};
-  WriteInt32L(&data[kMinigsfParamMySongOffset], param.song().address());
+  WriteInt32L(&data[kMinigsfParamMyMusicOffset], param.song().address());
   WriteInt16L(&data[kMinigsfParamMyFlagsOffset], 0);
   WriteInt16L(&data[kMinigsfParamMyMixingRateOffset], 0xffff);
   WriteInt16L(&data[kMinigsfParamMyVolumeOffset], 0xffff);

@@ -27,6 +27,7 @@ MAKEFLAGS += --no-print-directory
 .PHONY: all rom clean
 
 SRCS := $(wildcard *.s)
+DEPS := $(wildcard *.inc)
 OBJS := $(patsubst %.s,%.o,$(SRCS))
 
 all: rom
@@ -40,7 +41,7 @@ clean:
 
 %.s: ;
 
-%.o: %.s
+%.o: %.s $(DEPS)
 	$(AS) $(ASFLAGS) -o $@ $<
 
 LD_SCRIPT := ld_script.txt

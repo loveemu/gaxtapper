@@ -1,21 +1,11 @@
 ENTRY(Start)
 
 SECTIONS {
-    . = 0x3000000;
-
-    iwram (NOLOAD) :
-    ALIGN(4)
-    {
-        *.o(.bss);
-        . = 0x8000;
-    }
-
     . = 0x8000000;
 
     .text :
     ALIGN(4)
     {
-        crt0.o(.text);
-        main.o(.text);
+        gax3driver.o(.text);
     } =0
 }
