@@ -5,7 +5,7 @@
 
 	.syntax unified
 
-	.set INTR_MAIN_BUFFER_SIZE, 0xA4
+	.set INTR_MAIN_BUFFER_SIZE, 0x9C
 	.set GAX_WORK_RAM_SIZE, 0x1800
 
 	.text
@@ -75,12 +75,15 @@ AgbMain_Loop:
 InitIntrHandlers:
 	push {r4,lr}
 
-	@ TODO: use DMA instead
+	@ Load interrupt handler to IWRAM
 	ldr r4,=IntrMainBuffer
-	ldr r0,=IntrMain
-	movs r1, r4
-	ldr r2,=INTR_MAIN_BUFFER_SIZE / 4 | CPU_SET_32BIT
-	bl CpuSet
+	ldr r3, =REG_DMA3
+	ldr r0, =IntrMain
+	str r0, [r3, #OFFSET_REG_DMA3SAD - OFFSET_REG_DMA3]
+	str r4, [r3, #OFFSET_REG_DMA3DAD - OFFSET_REG_DMA3]
+	ldr r1, =(DMA_ENABLE | DMA_START_NOW | DMA_32BIT | DMA_SRC_INC | DMA_DEST_INC) << 16 | (INTR_MAIN_BUFFER_SIZE / 4)
+	str r1, [r3, #OFFSET_REG_DMA3CNT - OFFSET_REG_DMA3]
+	ldr r0, [r3, #OFFSET_REG_DMA3CNT - OFFSET_REG_DMA3]
 
 	ldr r0, =INTR_VECTOR
 	str r4, [r0]
