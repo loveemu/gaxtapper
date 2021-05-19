@@ -13,7 +13,7 @@
 
 	.set INTR_MAIN_BUFFER_SIZE, 0x94
 	.set INTR_TABLE_LENGTH, 2
-	.set GAX_WORK_RAM_SIZE, 0x1800
+	.set GAX_WORK_RAM_SIZE, 0x7E00 @ Assume that you have enough memory space, regardless of whether it is actually available
 
 	.global Start
 
