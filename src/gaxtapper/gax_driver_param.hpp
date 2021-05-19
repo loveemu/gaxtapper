@@ -37,6 +37,8 @@ class GaxDriverParam {
 
   [[nodiscard]] agbptr_t gax_play() const noexcept { return gax_play_; }
 
+  [[nodiscard]] agbptr_t gax_wram_pointer() const noexcept { return gax_wram_pointer_; }
+
   [[nodiscard]] const std::vector<GaxSongHeader> & songs() const noexcept { return songs_; }
 
   [[nodiscard]] GaxSongHeader fx() const noexcept { return fx_; }
@@ -56,6 +58,8 @@ class GaxDriverParam {
   void set_gax_irq(agbptr_t address) noexcept { gax_irq_ = address; }
 
   void set_gax_play(agbptr_t address) noexcept { gax_play_ = address; }
+
+  void set_gax_wram_pointer(agbptr_t address) noexcept { gax_wram_pointer_ = address; }
 
   void set_songs(std::vector<GaxSongHeader> songs) {
     songs_ = std::move(songs);
@@ -81,6 +85,7 @@ class GaxDriverParam {
         row_t{"gax2_init", to_string(this->gax2_init())},
         row_t{"gax_irq", to_string(this->gax_irq())},
         row_t{"gax_play", to_string(this->gax_play())},
+        row_t{"wram_pointer", to_string(this->gax_wram_pointer())},
         row_t{"len(songs)", std::to_string(this->songs().size())},
         row_t{"fx", to_string(this->fx() ? this->fx().address() : agbnullptr)}
     };
@@ -98,6 +103,7 @@ class GaxDriverParam {
   agbptr_t gax2_new_ = agbnullptr;
   agbptr_t gax_irq_ = agbnullptr;
   agbptr_t gax_play_ = agbnullptr;
+  agbptr_t gax_wram_pointer_ = agbnullptr;
   std::vector<GaxSongHeader> songs_;
   GaxSongHeader fx_;
 };

@@ -117,6 +117,8 @@ class GaxDriver {
                              std::string_view::size_type offset = 0);
   static agbptr_t FindGaxPlay(std::string_view rom,
                               std::string_view::size_type offset = 0);
+  static agbptr_t FindGaxWorkRamPointer(std::string_view rom,
+                                 agbptr_t gax_irq = agbnullptr);
 };
 
 }  // namespace gaxtapper

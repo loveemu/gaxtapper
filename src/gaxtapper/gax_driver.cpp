@@ -17,8 +17,6 @@
 
 namespace gaxtapper {
 
-static constexpr agbptr_t kGaxDriverDefaultWorkAddress = 0x3000000;
-
 static constexpr std::string_view kVersionTextPrefixPattern{"GAX Sound Engine "};
 
 GaxDriverParam GaxDriver::Inspect(std::string_view rom) {
@@ -31,6 +29,7 @@ GaxDriverParam GaxDriver::Inspect(std::string_view rom) {
   param.set_gax2_init(FindGax2Init(rom, code_offset));
   param.set_gax_irq(FindGaxIrq(rom, code_offset));
   param.set_gax_play(FindGaxPlay(rom, code_offset));
+  param.set_gax_wram_pointer(FindGaxWorkRamPointer(rom, param.gax_irq()));
   param.set_songs(GaxSongHeader::Scan(rom, param.version()));
   return param;
 }
@@ -53,8 +52,16 @@ void GaxDriver::InstallGsfDriver(std::string& rom, agbptr_t address,
     throw std::out_of_range("The address of gsf driver block is out of range.");
 
   if (work_address == agbnullptr) {
-    // TODO: Automatically avoid conflict with GAX
-    work_address = kGaxDriverDefaultWorkAddress;
+    work_address = 0x3000000; // use IWRAM for default work address
+    if (const agbptr_t gax_ptr = param.gax_wram_pointer();
+        gax_ptr != agbnullptr && (gax_ptr & ~0xFFFFFF) == work_address) {
+      // Since our work area exists in the same memory domain as GAX, there is a possibility of conflict.
+      // Using EWRAM avoids collisions, but slower memory access may interfere with playback.
+      // ("gameover", Maya the Bee: Sweet Gold, is probably the example of it.)
+      if (gax_ptr < 0x3004000) {
+        work_address = gax_ptr + 4;
+      }
+    }
   }
 
   std::memcpy(&rom[offset], gsf_driver_block, gsf_driver_size());
@@ -194,6 +201,16 @@ agbptr_t GaxDriver::FindGaxPlay(std::string_view rom,
   return start_offset != std::string_view::npos
              ? to_romptr(static_cast<uint32_t>(start_offset))
              : agbnullptr;
+}
+
+agbptr_t GaxDriver::FindGaxWorkRamPointer(std::string_view rom, agbptr_t gax_irq) {
+  if (gax_irq == agbnullptr) return agbnullptr;
+
+  const agbsize_t offset = to_offset(gax_irq + 0xf0);
+  if (offset + 4 >= rom.size()) return agbnullptr;
+
+  const agbptr_t ptr = ReadInt32L(&rom[offset]);
+  return is_ewramptr(ptr) || is_iwramptr(ptr) ? ptr : agbnullptr;
 }
 
 }  // namespace gaxtapper
