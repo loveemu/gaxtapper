@@ -1,5 +1,6 @@
 // Gaxtapper: Automated GSF ripper for GAX Sound Engine.
 
+#include <charconv>
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
@@ -25,6 +26,8 @@ void ExtractCommand(args::Subparser& parser) {
       "The output directory (the default is the working directory)", {'d'});
   args::ValueFlag<std::filesystem::path> basename_arg(
       parser, "basename", "The output filename (without extension)", {'o'});
+  args::ValueFlag<std::string> entrypoint_arg(
+      parser, "entrypoint", "Entrypoint address where the driver is inserted", {"entrypoint"});
   args::Positional<std::filesystem::path> input_arg(
       parser, "romfile", "The ROM file to be processed",
       args::Options::Required);
@@ -46,7 +49,25 @@ void ExtractCommand(args::Subparser& parser) {
   const std::filesystem::path outdir{args::get(outdir_arg)};
   const std::string gsfby{"Gaxtapper"};
 
-  Gaxtapper::ConvertToGsfSet(cartridge, basename, outdir, gsfby);
+  agbptr_t entrypoint = agbnullptr;
+  std::string entrypoint_str{entrypoint_arg.Get()};
+  if (!entrypoint_str.empty()) {
+    std::string_view s{entrypoint_str};
+    if (s.substr(0, 2) == "0X" || s.substr(0, 2) == "0x") s.remove_prefix(2);
+    if (auto [ptr, ec] =
+            std::from_chars(s.data(), s.data() + s.size(), entrypoint, 16);
+        ec != std::errc{}) {
+      throw std::invalid_argument(
+          "The entrypoint address must be specified as a hexadecimal string.");
+    }
+
+    if (!is_romptr(entrypoint)) {
+      throw std::invalid_argument(
+          "The entrypoint address must point to a ROM section (0x8000000-0x9FFFFFF).");
+    }
+  }
+
+  Gaxtapper::ConvertToGsfSet(cartridge, basename, entrypoint, outdir, gsfby);
 }
 
 void InspectCommand(args::Subparser& parser) {

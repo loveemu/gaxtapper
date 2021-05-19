@@ -7,6 +7,8 @@
 #include <cstring>
 #include <filesystem>
 #include <string>
+#include "arm.hpp"
+#include "bytes.hpp"
 #include "types.hpp"
 
 namespace gaxtapper {
@@ -30,6 +32,10 @@ class Cartridge {
     std::strncpy(&full_game_code[4], rom_.data() + 0xac, 4);
     std::strncpy(&full_game_code[9], decode_country_code(rom_[0xaf]), 3);
     return std::string{full_game_code};
+  }
+  [[nodiscard]] agbptr_t entrypoint() const noexcept {
+    const armins_t ins = ReadInt32L(rom_.data());
+    return is_arm_b(ins) ? arm_b_dest(to_romptr(0), ins) : agbnullptr;
   }
 
   [[nodiscard]] static const char* decode_country_code(char code) {

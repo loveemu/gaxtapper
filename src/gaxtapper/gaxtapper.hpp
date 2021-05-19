@@ -8,12 +8,11 @@
 
 namespace gaxtapper {
 
-static constexpr agbptr_t kGaxtapperGsfDriverAddress = to_romptr(Cartridge::kHeaderSize);
-
 class Gaxtapper {
  public:
   static void ConvertToGsfSet(Cartridge& cartridge,
                               const std::filesystem::path& basename,
+                              agbptr_t driver_address = agbnullptr,
                               const std::filesystem::path& outdir = "",
                               const std::string_view& gsfby = "");
   static void Inspect(const Cartridge& cartridge);
