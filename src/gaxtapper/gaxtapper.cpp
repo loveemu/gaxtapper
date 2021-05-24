@@ -79,6 +79,14 @@ void Gaxtapper::ConvertToGsfSet(Cartridge& cartridge,
   const GsfHeader gsf_header{kEntrypoint, kEntrypoint, cartridge.size()};
   GsfWriter::SaveToFile(gsflib_path, gsf_header, cartridge.rom());
 
+  std::optional<GaxSongParam> fx;
+  for (const GaxSongHeader& song : param.songs()) {
+    if (song.num_channels() == 0) {
+      fx = std::make_optional(GaxSongParam::Of(song));
+      break;
+    }
+  }
+
   const agbptr_t minigsf_address = GaxDriver::minigsf_address(driver_address);
   for (const GaxSongHeader& song : param.songs()) {
     if (song.num_channels() == 0) continue;
@@ -103,6 +111,7 @@ void Gaxtapper::ConvertToGsfSet(Cartridge& cartridge,
     if (!gsfby.empty()) minigsf_tags["gsfby"] = gsfby;
 
     GaxMinigsfDriverParam minigsf{minigsf_address, GaxSongParam::Of(song)};
+    minigsf.set_fx(std::move(fx));
     std::string minigsf_rom{GaxDriver::NewMinigsfData(minigsf)};
     GsfHeader minigsf_header{kEntrypoint, minigsf_address,
                              static_cast<agbsize_t>(minigsf_rom.size())};

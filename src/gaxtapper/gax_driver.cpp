@@ -94,9 +94,11 @@ std::string GaxDriver::NewMinigsfData(const GaxMinigsfDriverParam& param) {
 
   std::array<char, kMinigsfParamSize> data{0};
   WriteInt32L(&data[kMinigsfParamMyMusicOffset], param.song().address());
-  WriteInt16L(&data[kMinigsfParamMyFlagsOffset], 0);
-  WriteInt16L(&data[kMinigsfParamMyMixingRateOffset], 0xffff);
-  WriteInt16L(&data[kMinigsfParamMyVolumeOffset], 0xffff);
+  WriteInt32L(&data[kMinigsfParamMyFxOffset], param.fx().has_value() ? param.fx().value().address() : 0);
+  WriteInt16L(&data[kMinigsfParamMyFxIdOffset], param.fxid());
+  WriteInt16L(&data[kMinigsfParamMyFlagsOffset], param.flags());
+  WriteInt16L(&data[kMinigsfParamMyMixingRateOffset], param.mixing_rate());
+  WriteInt16L(&data[kMinigsfParamMyVolumeOffset], param.volume());
   return std::string(data.data(), kMinigsfParamSize);
 }
 

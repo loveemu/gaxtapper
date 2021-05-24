@@ -100,6 +100,8 @@ AgbMain_Init:
 	movs r0, r4
 	bl gax2_init
 
+	ldrh r0, [r5, #o_MinigsfParams_fxid] @ not used yet, but read to prevent optimization
+
 	ldr r0, DriverWorkRamStart
 	bl InitIntrHandlers
 
