@@ -110,7 +110,7 @@ See [LICENSE.txt](https://github.com/loveemu/gaxtapper/blob/main/LICENSE.txt).
 
 ## Special thanks to
 
-* Shin'en and Bernhard wodok: For creating GAX and great music
+* Shin'en and Bernhard Wodok: For creating GAX and great music
 * Caitsith2: For designing GSF format and tools including Saptapper
 * Incineroar: For sharing research notes and IDB for Crash Bandicoot: The Huge Adventure. This was the starting point for me to start looking at GAX
 * Anterag and LAC: For a huge amount of testing and feedback
