@@ -80,7 +80,7 @@ gaxtapper --help
 
 ## Minigsf program block format
 
-Advanced users can change the playback settings by editing the minigsf program block.
+Advanced users can change the playback settings by editing the minigsf program block with an external tool.
 
 The format is as follows. Note that this is the current implementation version, and does not necessarily correspond to past or future formats.
 
