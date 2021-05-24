@@ -78,6 +78,21 @@ You can check the command syntax as follows.
 gaxtapper --help
 ```
 
+## Minigsf program block format
+
+Advanced users can change the playback settings by editing the minigsf program block.
+
+The format is as follows. Note that this is the current implementation version, and does not necessarily correspond to past or future formats.
+
+|Name        |Offset |Size |Description                                                                                                                          |
+|------------|-------|-----|-------------------------------------------------------------------------------------------------------------------------------------|
+|music       |0      |4    |The address of the song header                                                                                                       |
+|fx          |4      |4    |The address of the sound FX instrument header (can be 0 if FX is not used)                                                           |
+|fxid        |8      |2    |**TBA**: Set to 0xffff if FX is not used. This property is not yet supported, so always set it to 0xffff                             |
+|flags       |0xC    |2    |Flag bits. Details unknown. Usually 0 is used                                                                                        |
+|mixing_rate |0x10   |2    |Mixing rate of music and FX in hertz (use 5735, 9079, 10513, 11469, 13380, 15769, 18158, 21025, 26760, 31537, 36316, 40138 or 42049) |
+|volume      |0x14   |2    |Volume. Set to 0xffff when there is no need to specify. The standard volume is 0x100                                                 |
+
 ## Compatibility, limitations and known bugs
 
 GAX is a little less self-contained than M4A (Nintendo's standard sound driver) and can change things programmatically, so sometimes Gaxtapper may not work as expected. If you think you have found a problem, please visit the [Issues](https://github.com/loveemu/gaxtapper/issues) page.
