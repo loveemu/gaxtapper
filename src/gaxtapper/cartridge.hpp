@@ -25,7 +25,13 @@ class Cartridge {
   [[nodiscard]] std::string& rom() { return rom_; }
   [[nodiscard]] const std::string& rom() const { return rom_; }
   [[nodiscard]] size_type size() const { return static_cast<agbsize_t>(rom_.size()); }
-  [[nodiscard]] std::string game_title() const { return rom_.substr(0xa0, 12); }
+  [[nodiscard]] std::string game_title() const {
+    std::string_view title = std::string_view{rom_}.substr(0xa0, 12);
+    if (const auto end = title.find_first_of('\0'); end != std::string_view::npos) {
+      title.remove_suffix(title.size() - end);
+    }
+    return std::string{title};
+  }
   [[nodiscard]] std::string game_code() const { return rom_.substr(0xac, 4); }
   [[nodiscard]] std::string full_game_code() const {
     char full_game_code[] = "AGB-XXXX-XXX";
