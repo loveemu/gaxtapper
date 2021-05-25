@@ -4,6 +4,7 @@
 
 #include <filesystem>
 #include <iostream>
+#include <set>
 #include <sstream>
 #include <string>
 #include "cartridge.hpp"
@@ -87,21 +88,37 @@ void Gaxtapper::ConvertToGsfSet(Cartridge& cartridge,
     }
   }
 
+  std::set<std::filesystem::path> minigsf_name_set;
+  std::set<std::filesystem::path> duplicated_name_set;
+  for (const GaxSongHeader& song : param.songs()) {
+    if (song.num_channels() == 0) continue;
+    std::filesystem::path minigsf_filename{GetMinigsfFilename(song, basename)};
+    const auto [_, new_name] = minigsf_name_set.insert(minigsf_filename);
+    if (!new_name) {
+      duplicated_name_set.insert(minigsf_filename);
+    }
+  }
+
+  std::set<std::filesystem::path> saved_minigsf_names;
   const agbptr_t minigsf_address = GaxDriver::minigsf_address(driver_address);
   for (const GaxSongHeader& song : param.songs()) {
     if (song.num_channels() == 0) continue;
 
-    std::filesystem::path minigsf_filename{
-        ToSafeFilenameSegment(song.parsed_name())};
-    if (minigsf_filename.empty()) {
+    std::filesystem::path minigsf_filename{GetMinigsfFilename(song, basename)};
+
+    // If a file with the same name has already been saved,
+    // add module address to the filename and make it unique.
+    // ("010-MXBA", Monster House)
+    if (duplicated_name_set.find(minigsf_filename) != duplicated_name_set.end()) {
       std::ostringstream song_id;
       song_id << std::setfill('0') << std::setw(8) << std::hex
               << song.address();
-      minigsf_filename += basename;
+      std::filesystem::path extension = minigsf_filename.extension();
+      minigsf_filename.replace_extension();
       minigsf_filename += "-";
       minigsf_filename += song_id.str();
+      minigsf_filename += extension;
     }
-    minigsf_filename += ".minigsf";
 
     std::filesystem::path minigsf_path{outdir};
     minigsf_path /= minigsf_filename;
@@ -111,7 +128,7 @@ void Gaxtapper::ConvertToGsfSet(Cartridge& cartridge,
     if (!gsfby.empty()) minigsf_tags["gsfby"] = gsfby;
 
     GaxMinigsfDriverParam minigsf{minigsf_address, GaxSongParam::Of(song)};
-    minigsf.set_fx(std::move(fx));
+    minigsf.set_fx(fx);
     std::string minigsf_rom{GaxDriver::NewMinigsfData(minigsf)};
     GsfHeader minigsf_header{kEntrypoint, minigsf_address,
                              static_cast<agbsize_t>(minigsf_rom.size())};
@@ -147,6 +164,21 @@ void Gaxtapper::InspectSimple(const Cartridge& cartridge,
               << std::left << std::setw(12) << cartridge.full_game_code() << " "
               << name << std::endl;
   }
+}
+
+std::filesystem::path Gaxtapper::GetMinigsfFilename(
+    const GaxSongHeader& song, const std::filesystem::path& default_name) {
+  std::filesystem::path minigsf_filename{
+      ToSafeFilenameSegment(song.parsed_name())};
+  if (minigsf_filename.empty()) {
+    std::ostringstream song_id;
+    song_id << std::setfill('0') << std::setw(8) << std::hex << song.address();
+    minigsf_filename += default_name;
+    minigsf_filename += "-";
+    minigsf_filename += song_id.str();
+  }
+  minigsf_filename += ".minigsf";
+  return minigsf_filename;
 }
 
 }  // namespace gaxtapper

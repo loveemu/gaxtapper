@@ -8,6 +8,8 @@
 
 namespace gaxtapper {
 
+class GaxSongHeader;
+
 class Gaxtapper {
  public:
   static void ConvertToGsfSet(Cartridge& cartridge,
@@ -18,6 +20,8 @@ class Gaxtapper {
                               const std::string_view& gsfby = "");
   static void Inspect(const Cartridge& cartridge);
   static void InspectSimple(const Cartridge& cartridge, std::string_view name);
+  static std::filesystem::path GetMinigsfFilename(
+      const GaxSongHeader& song, const std::filesystem::path& default_name);
 };
 
 }  // namespace gaxtapper
