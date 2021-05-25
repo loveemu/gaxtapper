@@ -112,6 +112,8 @@ GAX 1.x / 2.x is not supported at this time (only detection supported).
 
 Most games developed by Vicarious Visions are not supported. It's because they transfer the division routine into internal WRAM for speed, but Gaxtapper cannot handle it specially ([#13](https://github.com/loveemu/gaxtapper/issues/13)).
 
+Gaxtapper will output an invalid GSF for Jazz Jackrabbit. Fortunately, there is a workaround for this ([#17](https://github.com/loveemu/gaxtapper/issues/17)).
+
 ### Limitations
 
 * One-shot jingles may loop infinitely, as there is no way provided to change the playback method at the moment ([#5](https://github.com/loveemu/gaxtapper/issues/5))
