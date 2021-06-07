@@ -3,9 +3,15 @@
 #include "gax_music_entry.hpp"
 
 #include "bytes.hpp"
+#include "gax_music_entry_v2.hpp"
 #include "gax_song_header_v3.hpp"
 
 namespace gaxtapper {
+
+GaxMusicEntry::GaxMusicEntry(const GaxMusicEntryV2& song)
+    : address_(song.address()),
+      info_(song.info()),
+      num_channels_(song.header().num_channels()) {}
 
 GaxMusicEntry::GaxMusicEntry(const GaxSongHeaderV3& header)
     : address_(header.address()),
@@ -19,7 +25,8 @@ std::vector<GaxMusicEntry> GaxMusicEntry::Scan(
     std::vector headers{GaxSongHeaderV3::Scan(rom, offset)};
     return std::vector<GaxMusicEntry>{headers.begin(), headers.end()};
   } else {
-    return std::vector<GaxMusicEntry>{};
+    std::vector songs{GaxMusicEntryV2::Scan(rom, offset)};
+    return std::vector<GaxMusicEntry>{songs.begin(), songs.end()};
   }
 }
 

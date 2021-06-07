@@ -10,11 +10,13 @@
 #include "types.hpp"
 
 namespace gaxtapper {
+class GaxMusicEntryV2;
 class GaxSongHeaderV3;
 
 class GaxMusicEntry {
  public:
   GaxMusicEntry() = default;
+  GaxMusicEntry(const GaxMusicEntryV2& song);
   GaxMusicEntry(const GaxSongHeaderV3& header);
 
   constexpr operator bool() const {
