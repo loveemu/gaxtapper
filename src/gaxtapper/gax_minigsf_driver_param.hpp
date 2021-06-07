@@ -4,8 +4,10 @@
 #define GAXTAPPER_GAX_MINIGSF_DRIVER_PARAM_HPP_
 
 #include <algorithm>
+#include <optional>
 #include <string>
 #include <utility>
+
 #include "gax_song_param.hpp"
 #include "tabulate.hpp"
 #include "types.hpp"

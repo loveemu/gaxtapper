@@ -12,7 +12,7 @@
 #include "bytes.hpp"
 #include "gax_driver_param.hpp"
 #include "gax_minigsf_driver_param.hpp"
-#include "gax_song_header.hpp"
+#include "gax_music_entry.hpp"
 #include "types.hpp"
 
 namespace gaxtapper {
@@ -30,7 +30,7 @@ GaxDriverParam GaxDriver::Inspect(std::string_view rom) {
   param.set_gax_irq(FindGaxIrq(rom, code_offset));
   param.set_gax_play(FindGaxPlay(rom, code_offset));
   param.set_gax_wram_pointer(FindGaxWorkRamPointer(rom, param.gax_play()));
-  param.set_songs(GaxSongHeader::Scan(rom, param.version()));
+  param.set_songs(GaxMusicEntry::Scan(rom, param.version()));
   return param;
 }
 
@@ -103,13 +103,15 @@ std::string GaxDriver::NewMinigsfData(const GaxMinigsfDriverParam& param) {
 }
 
 std::ostream& GaxDriver::WriteGaxSongsAsTable(
-    std::ostream& stream, const std::vector<GaxSongHeader>& songs) {
+    std::ostream& stream, const std::vector<GaxMusicEntry>& songs) {
   using row_t = std::vector<std::string>;
   const row_t header{"Name", "Artist", "Full Name", "Address"};
   std::vector<row_t> items;
   items.reserve(songs.size());
   for (const auto& song : songs) {
-    items.push_back(row_t{song.parsed_name(), song.parsed_artist(), song.name(), to_string(song.address())});
+    items.push_back(row_t{song.info().parsed_name(),
+                          song.info().parsed_artist(), song.info().name(),
+                          to_string(song.address())});
   }
 
   tabulate(stream, header, items);

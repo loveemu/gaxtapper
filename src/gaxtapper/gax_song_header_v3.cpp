@@ -1,6 +1,6 @@
 // Gaxtapper: Automated GSF ripper for GAX Sound Engine.
 
-#include "gax_song_header.hpp"
+#include "gax_song_header_v3.hpp"
 
 #include <algorithm>
 
@@ -10,7 +10,7 @@ namespace gaxtapper {
 
 constexpr std::uint16_t kMaxChannels = 32;
 
-std::optional<GaxSongHeader> GaxSongHeader::TryParseV3(std::string_view rom, std::string_view::size_type offset) {
+std::optional<GaxSongHeaderV3> GaxSongHeaderV3::TryParse(std::string_view rom, std::string_view::size_type offset) {
   if (offset + 0x20 >= rom.size()) return std::nullopt;
 
   const std::uint16_t num_channels = ReadInt16L(&rom[offset]);
@@ -70,7 +70,7 @@ std::optional<GaxSongHeader> GaxSongHeader::TryParseV3(std::string_view rom, std
       return std::nullopt;
   }
 
-  GaxSongHeader header;
+  GaxSongHeaderV3 header;
   header.set_address(to_romptr(static_cast<agbsize_t>(offset)));
   header.set_num_channels(num_channels);
   header.set_num_rows_per_pattern(num_rows_per_pattern);
@@ -85,30 +85,23 @@ std::optional<GaxSongHeader> GaxSongHeader::TryParseV3(std::string_view rom, std
   header.set_num_fx_voices(ReadInt8(&rom[offset + 0x1c]));
   header.set_seq_of_channels(std::move(seq_of_channels));
   if (num_channels != 0)
-    header.set_name(header.TryFindNameV3(rom));
+    header.set_info(header.TryFindInfoText(rom));
   return std::make_optional(header);
 }
 
-std::vector<GaxSongHeader> GaxSongHeader::ScanV3(
+std::vector<GaxSongHeaderV3> GaxSongHeaderV3::Scan(
     std::string_view rom, std::string_view::size_type start) {
   start = (start + 3) & ~3;
 
-  std::vector<GaxSongHeader> headers;
+  std::vector<GaxSongHeaderV3> headers;
   for (auto offset = start; offset < rom.size(); offset += 4) {
-    if (const auto header = TryParseV3(rom, offset); header)
+    if (const auto header = TryParse(rom, offset); header)
       headers.push_back(header.value());
   }
   return headers;
 }
 
-std::vector<GaxSongHeader> GaxSongHeader::Scan(
-    std::string_view rom, const GaxVersion& version,
-    std::string_view::size_type offset) {
-  if (version.major_version() == 3) return ScanV3(rom, offset);
-  return std::vector<GaxSongHeader>{};
-}
-
-std::string GaxSongHeader::TryFindNameV3(std::string_view rom) const {
+GaxSongInfoText GaxSongHeaderV3::TryFindInfoText(std::string_view rom) const {
   // Example value: "wiese" (C) Manfred Linzner
   if (seq_of_channels().empty()) return std::string{};
   const auto seq_offset = to_offset(
@@ -139,7 +132,7 @@ std::string GaxSongHeader::TryFindNameV3(std::string_view rom) const {
     }
   }
 
-  return std::string{rom.substr(offset, end_offset - offset)};
+  return GaxSongInfoText{std::string{rom.substr(offset, end_offset - offset)}};
 }
 
 }  // namespace gaxtapper

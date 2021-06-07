@@ -55,7 +55,7 @@ class GaxDriver {
   static std::string NewMinigsfData(const GaxMinigsfDriverParam& param);
 
   static std::ostream& WriteGaxSongsAsTable(
-      std::ostream& stream, const std::vector<GaxSongHeader>& songs);
+      std::ostream& stream, const std::vector<GaxMusicEntry>& songs);
 
  private:
   static constexpr unsigned char gsf_driver_block[0x208] = {

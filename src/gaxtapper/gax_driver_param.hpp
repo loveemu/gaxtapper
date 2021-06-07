@@ -6,7 +6,7 @@
 #include <string>
 #include <utility>
 
-#include "gax_song_header.hpp"
+#include "gax_music_entry.hpp"
 #include "gax_version.hpp"
 #include "tabulate.hpp"
 #include "types.hpp"
@@ -39,9 +39,9 @@ class GaxDriverParam {
 
   [[nodiscard]] agbptr_t gax_wram_pointer() const noexcept { return gax_wram_pointer_; }
 
-  [[nodiscard]] const std::vector<GaxSongHeader> & songs() const noexcept { return songs_; }
+  [[nodiscard]] const std::vector<GaxMusicEntry> & songs() const noexcept { return songs_; }
 
-  [[nodiscard]] GaxSongHeader fx() const noexcept { return fx_; }
+  [[nodiscard]] GaxMusicEntry fx() const noexcept { return fx_; }
 
   void set_version(GaxVersion version) noexcept { version_ = version; }
 
@@ -61,10 +61,10 @@ class GaxDriverParam {
 
   void set_gax_wram_pointer(agbptr_t address) noexcept { gax_wram_pointer_ = address; }
 
-  void set_songs(std::vector<GaxSongHeader> songs) {
+  void set_songs(std::vector<GaxMusicEntry> songs) {
     songs_ = std::move(songs);
 
-    fx_ = GaxSongHeader{};
+    fx_ = GaxMusicEntry{};
     for (const auto & song : songs_) {
       if (song.num_channels() == 0) {
         fx_ = song;
@@ -104,8 +104,8 @@ class GaxDriverParam {
   agbptr_t gax_irq_ = agbnullptr;
   agbptr_t gax_play_ = agbnullptr;
   agbptr_t gax_wram_pointer_ = agbnullptr;
-  std::vector<GaxSongHeader> songs_;
-  GaxSongHeader fx_;
+  std::vector<GaxMusicEntry> songs_;
+  GaxMusicEntry fx_;
 };
 
 }  // namespace gaxtapper
