@@ -98,7 +98,7 @@ The details of the flags are not yet clear, but at least the following flags are
 |Name            |Value |Description                                                                               |
 |----------------|------|------------------------------------------------------------------------------------------|
 |GAX_JINGLE      |8     |Play module as jingle (no loop)                                                           |
-|GAX_NO_JINGLE   |0x10  |Unknown                                                                                   |
+|GAX_NO_JINGLE   |0x10  |Disable jingle playback by gax2_jingle function. This will reduce resource usage          |
 |GAX_FX_REVERB   |?     |Unknown                                                                                   |
 |GAX_HALFRATE_FX |?     |Set the FX mixing rate to half of the music and use the same one DMA for playback (maybe) |
 
