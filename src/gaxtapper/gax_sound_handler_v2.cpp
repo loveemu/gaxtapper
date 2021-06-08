@@ -9,19 +9,13 @@ namespace gaxtapper {
 
 std::optional<GaxSoundHandlerV2> GaxSoundHandlerV2::TryParse(
     std::string_view rom, std::string_view::size_type offset) {
-  if (offset + 4 >= rom.size()) return std::nullopt;
-  const agbptr_t init_handler = ReadInt32L(&rom[offset]);
-  if (init_handler == 0) {
-    const agbptr_t address = to_romptr(static_cast<agbsize_t>(offset));
-    return GaxSoundHandlerV2{address};
-  }
-  if (!is_romptr(init_handler))
-    return std::nullopt;
-
   if (offset + 0x1c >= rom.size()) return std::nullopt;
+
+  const agbptr_t init_handler = ReadInt32L(&rom[offset]);
   const agbptr_t unknown_handler = ReadInt32L(&rom[offset + 4]);
   const agbptr_t play_handler = ReadInt32L(&rom[offset + 8]);
-  if (!is_romptr(unknown_handler) || !is_romptr(play_handler))
+  if (!is_romptr(init_handler) || !is_romptr(unknown_handler) ||
+      !is_romptr(play_handler))
     return std::nullopt;
 
   const agbptr_t data_address = ReadInt32L(&rom[offset + 0x18]);
