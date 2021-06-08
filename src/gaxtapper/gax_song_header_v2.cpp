@@ -2,8 +2,6 @@
 
 #include "gax_song_header_v2.hpp"
 
-#include <algorithm>
-
 #include "bytes.hpp"
 
 namespace gaxtapper {

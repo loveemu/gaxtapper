@@ -108,7 +108,7 @@ GAX is a little less self-contained than M4A (Nintendo's standard sound driver) 
 
 ### Supported / Unsupported games
 
-GAX 1.x / 2.x is not supported at this time (only detection supported). 
+The majority of GAX 3.x titles are supported. Support for GAX 2.x was added later, but it is not yet stable.
 
 Most games developed by Vicarious Visions are not supported. It's because they transfer the division routine into internal WRAM for speed, but Gaxtapper cannot handle it specially ([#13](https://github.com/loveemu/gaxtapper/issues/13)).
 
@@ -122,7 +122,7 @@ Gaxtapper will output an invalid GSF for Jazz Jackrabbit. Fortunately, there is 
 
 ## Technical explanation
 
-[Research Note: Shin'en GAX Sound Engine V3 (GBA)](https://gist.github.com/loveemu/9b3063ffd9a76cb18e379324e43f3251)
+[Research Note: Shin'en GAX Sound Engine (GBA)](https://gist.github.com/loveemu/9b3063ffd9a76cb18e379324e43f3251)
 
 Gaxtapper scans the entire ROM using function signatures and simple heuristics for the necessary code and music data. Then, it will insert the relocatable driver code block into the ROM and dynamically link the address found in the previous step. This is the same as Saptapper.
 

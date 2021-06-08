@@ -118,6 +118,11 @@ class GaxDriver {
   static agbptr_t FindGaxPlay(std::string_view rom,
                               std::string_view::size_type offset = 0);
   static agbptr_t FindGaxWorkRamPointer(std::string_view rom,
+                                        const GaxVersion& version,
+                                        agbptr_t gax_play = agbnullptr);
+  static agbptr_t FindGaxWorkRamPointerV2(std::string_view rom,
+                                          agbptr_t gax_play = agbnullptr);
+  static agbptr_t FindGaxWorkRamPointerV3(std::string_view rom,
                                  agbptr_t gax_play = agbnullptr);
 };
 

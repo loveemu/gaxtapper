@@ -96,7 +96,7 @@ std::vector<GaxSongHeaderV3> GaxSongHeaderV3::Scan(
   std::vector<GaxSongHeaderV3> headers;
   for (auto offset = start; offset < rom.size(); offset += 4) {
     if (const auto header = TryParse(rom, offset); header)
-      headers.push_back(header.value());
+      headers.push_back(*header);
   }
   return headers;
 }

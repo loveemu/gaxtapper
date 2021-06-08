@@ -46,7 +46,7 @@ std::optional<GaxSoundHandlerV2> GaxSoundHandlerV2::TryParse(
       const agbptr_t address = ReadInt32L(&rom[linked_handlers_offset + i * 4]);
       const auto maybe_handler = TryParse(rom, to_offset(address));
       if (!maybe_handler.has_value()) return std::nullopt;
-      linked_handlers.push_back(maybe_handler.value());
+      linked_handlers.push_back(*maybe_handler);
     }
   }
 
