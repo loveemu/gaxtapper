@@ -3,11 +3,11 @@
 @ * Using `ldr rX, =label` is not allowed
 @ * Using data section such as `.bss` is not allowed
 
-	.include "macros/function.inc"
-	.include "macros/struct.inc"
-	.include "constants/gba_constants.inc"
-	.include "constants/gax3_constants.inc"
-	.include "constants/gax3driver_constants.inc"
+	.include "../macros/function.inc"
+	.include "../macros/struct.inc"
+	.include "../constants/gba_constants.inc"
+	.include "../constants/gax3_constants.inc"
+	.include "../constants/gax3driver_constants.inc"
 
 	.syntax unified
 
