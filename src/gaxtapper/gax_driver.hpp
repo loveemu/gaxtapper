@@ -133,7 +133,7 @@ class GaxDriver {
 
   GaxDriver() = default;
 
-  [[nodiscard]] static constexpr agbsize_t gsf_driver_size(
+  [[nodiscard]] static agbsize_t gsf_driver_size(
       const GaxVersion& version) noexcept {
     return version.major_version() == 3
                ? static_cast<agbsize_t>(gax3_driver_block.size())
