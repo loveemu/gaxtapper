@@ -82,15 +82,14 @@ AgbMain_Init:
 	movs r0, #4
 	strh r0, [r4, #o_Gax2Params_num_fx_channels]
 	ldr r0, [r5, #o_MinigsfParams_fx]
-	movs r3, #o_Gax2Params_fx @ PATCH: gaxtapper will change the value
-	adds r3, r3, r4
-	str r0, [r3]
+	str r0, [r4, #0x2c] @ #o_Gax2Params_fx
 	ldr r0, [r5, #o_MinigsfParams_music]
-	adds r3, r3, #o_Gax2Params_music - o_Gax2Params_fx
-	str r0, [r3]
+	str r0, [r4, #0x30] @ #o_Gax2Params_music
 
-	movs r0, r4
-	bl gax2_estimate
+	@ The estimate function in GAX V2 is really unreliable (issue #19).
+	@ Therefore, use a predetermined buffer size.
+	ldr r0, DriverWorkRamSize
+	str r0, [r4, #o_Gax2Params_wram_size]
 
 	movs r1, #(INTR_MAIN_BUFFER_SIZE + INTR_TABLE_LENGTH * 4)
 	ldr r0, DriverWorkRamStart
@@ -116,6 +115,8 @@ GaxtapperSignature:
 	.size GaxtapperSignature, .-GaxtapperSignature
 DriverWorkRamStart:
 	.4byte 0x3000000    @ PATCH: gaxtapper will change the value
+DriverWorkRamSize:
+	.4byte 0x2000       @ PATCH: gaxtapper will change the value
 myMinigsfParams:            @ PATCH: gaxtapper will change the value
 	.4byte 0x8000000    @ music
 	.4byte 0x8000000    @ fx
@@ -269,15 +270,6 @@ VBlankIntr:
 	.align 2, 0
 	.pool
 	thumb_func_end VBlankIntr
-
-	thumb_func_start gax2_estimate
-gax2_estimate:
-	ldr r1, gax2_estimate_p
-	bx r1
-	.align 2, 0
-gax2_estimate_p:
-	.4byte 0x8000000 @ PATCH: gaxtapper will change the value
-	thumb_func_end gax2_estimate
 
 	thumb_func_start gax2_new
 gax2_new:

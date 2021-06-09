@@ -32,8 +32,10 @@ void ExtractCommand(args::Subparser& parser) {
       {"entrypoint"});
   args::ValueFlag<std::string> work_arg(
       parser, "work",
-      "RAM address that the driver uses as a work space (advanced)",
-      {"work"});
+      "RAM address that the driver uses as a work space (advanced)", {"work"});
+  args::ValueFlag<std::string> work_size_arg(
+      parser, "work-size",
+      "RAM block size that the driver uses as a work space (GAX 1 or GAX 2) (advanced)", {"work-size"});
   args::Positional<std::filesystem::path> input_arg(
       parser, "romfile", "The ROM file to be processed",
       args::Options::Required);
@@ -64,6 +66,18 @@ void ExtractCommand(args::Subparser& parser) {
     }
   }
 
+  agbsize_t work_size = 0x2000;
+  if (work_size_arg) {
+    std::string_view s{work_size_arg.Get()};
+    if (s.substr(0, 2) == "0X" || s.substr(0, 2) == "0x") s.remove_prefix(2);
+    if (auto [ptr, ec] =
+            std::from_chars(s.data(), s.data() + s.size(), work_size, 16);
+        ec != std::errc{}) {
+      throw std::invalid_argument(
+          "The work RAM block size must be specified as a hexadecimal string.");
+    }
+  }
+
   const auto in_path = args::get(input_arg);
   if (!exists(in_path)) {
     std::ostringstream message;
@@ -80,7 +94,7 @@ void ExtractCommand(args::Subparser& parser) {
   const std::string gsfby{"Gaxtapper"};
 
   Gaxtapper::ConvertToGsfSet(cartridge, basename, entrypoint, work_address,
-                             outdir, gsfby);
+                             work_size, outdir, gsfby);
 }
 
 void InspectCommand(args::Subparser& parser) {

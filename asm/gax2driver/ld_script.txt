@@ -1,0 +1,11 @@
+ENTRY(Start)
+
+SECTIONS {
+    . = 0x8000000;
+
+    .text :
+    ALIGN(4)
+    {
+        gax2driver.o(.text);
+    } =0
+}

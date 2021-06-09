@@ -19,8 +19,8 @@ namespace gaxtapper {
 
 void Gaxtapper::ConvertToGsfSet(Cartridge& cartridge,
                                 const std::filesystem::path& basename,
-                                agbptr_t driver_address,
-                                agbptr_t work_address,
+                                agbptr_t driver_address, agbptr_t work_address,
+                                agbsize_t work_size,
                                 const std::filesystem::path& outdir,
                                 const std::string_view& gsfby) {
   if (driver_address != agbnullptr) {
@@ -61,13 +61,14 @@ void Gaxtapper::ConvertToGsfSet(Cartridge& cartridge,
   // If the entry point address is not specified, the original entrypoint of the ROM is used as is.
   if (driver_address == agbnullptr) {
     driver_address = cartridge.entrypoint();
-    if (driver_address + GaxDriver::gsf_driver_size() >= cartridge.size()) {
-      driver_address =
-          to_romptr(cartridge.size() - GaxDriver::gsf_driver_size());
+    const agbsize_t driver_size = GaxDriver::gsf_driver_size(param.version());
+    if (driver_address + driver_size >= cartridge.size()) {
+      driver_address = to_romptr(cartridge.size() - driver_size);
     }
   }
 
-  GaxDriver::InstallGsfDriver(cartridge.rom(), driver_address, work_address, param);
+  GaxDriver::InstallGsfDriver(cartridge.rom(), driver_address, work_address,
+                              work_size, param);
 
   if (!outdir.empty())
     create_directories(outdir);
@@ -100,7 +101,7 @@ void Gaxtapper::ConvertToGsfSet(Cartridge& cartridge,
   }
 
   std::set<std::filesystem::path> saved_minigsf_names;
-  const agbptr_t minigsf_address = GaxDriver::minigsf_address(driver_address);
+  const agbptr_t minigsf_address = GaxDriver::minigsf_address(driver_address, param.version());
   for (const GaxMusicEntry& song : param.songs()) {
     if (song.num_channels() == 0) continue;
 

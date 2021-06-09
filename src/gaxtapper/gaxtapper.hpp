@@ -16,6 +16,7 @@ class Gaxtapper {
                               const std::filesystem::path& basename,
                               agbptr_t driver_address = agbnullptr,
                               agbptr_t work_address = agbnullptr,
+                              agbsize_t work_size = 0x2000,
                               const std::filesystem::path& outdir = "",
                               const std::string_view& gsfby = "");
   static void Inspect(const Cartridge& cartridge);

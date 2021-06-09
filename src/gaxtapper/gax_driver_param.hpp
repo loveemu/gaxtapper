@@ -18,7 +18,7 @@ class GaxDriverParam {
   GaxDriverParam() = default;
 
   [[nodiscard]] bool ok() const noexcept {
-    return version_ && gax2_estimate_ != agbnullptr &&
+    return version_ && (version().major_version() != 3 || gax2_estimate_ != agbnullptr) &&
            gax2_new_ != agbnullptr && gax2_init_ != agbnullptr &&
            gax_irq_ != agbnullptr && gax_play_ != agbnullptr && !songs_.empty();
   }

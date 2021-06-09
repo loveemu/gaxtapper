@@ -35,7 +35,7 @@ GaxDriverParam GaxDriver::Inspect(std::string_view rom) {
 }
 
 void GaxDriver::InstallGsfDriver(std::string& rom, agbptr_t address,
-                                 agbptr_t work_address,
+                                 agbptr_t work_address, agbsize_t work_size,
                                  const GaxDriverParam& param) {
   if (!is_romptr(address))
     throw std::invalid_argument("The gsf driver address is not valid.");
@@ -48,7 +48,7 @@ void GaxDriver::InstallGsfDriver(std::string& rom, agbptr_t address,
   }
 
   const agbsize_t offset = to_offset(address);
-  if (offset + gsf_driver_size() > rom.size())
+  if (offset + gsf_driver_size(param.version()) > rom.size())
     throw std::out_of_range("The address of gsf driver block is out of range.");
 
   if (work_address == agbnullptr) {
@@ -64,21 +64,32 @@ void GaxDriver::InstallGsfDriver(std::string& rom, agbptr_t address,
     }
   }
 
-  std::memcpy(&rom[offset], gsf_driver_block, gsf_driver_size());
-  WriteInt32L(&rom[offset + kGax2EstimateOffset], param.gax2_estimate() | 1);
-  WriteInt32L(&rom[offset + kGax2NewOffset], param.gax2_new() | 1);
-  WriteInt32L(&rom[offset + kGax2InitOffset], param.gax2_init() | 1);
-  WriteInt32L(&rom[offset + kGaxIrqOffset], param.gax_irq() | 1);
-  WriteInt32L(&rom[offset + kGaxPlayOffset], param.gax_play() | 1);
+  if (param.version().major_version() == 3) {
+    std::memcpy(&rom[offset], gax3_driver_block.data(),
+                gax3_driver_block.size());
+    WriteInt32L(&rom[offset + kGax2EstimateOffsetV3],
+                param.gax2_estimate() | 1);
+    WriteInt32L(&rom[offset + kGax2NewOffsetV3], param.gax2_new() | 1);
+    WriteInt32L(&rom[offset + kGax2InitOffsetV3], param.gax2_init() | 1);
+    WriteInt32L(&rom[offset + kGaxIrqOffsetV3], param.gax_irq() | 1);
+    WriteInt32L(&rom[offset + kGaxPlayOffsetV3], param.gax_play() | 1);
 
-  WriteInt32L(&rom[offset + kMyWorkRamOffset], work_address);
+    WriteInt32L(&rom[offset + kMyWorkRamOffsetV3], work_address);
 
-  const std::uint8_t sfx_offset = (param.version().major_version() > 3 ||
-                                   (param.version().major_version() == 3 &&
-                                    param.version().minor_version() >= 5))
-                                      ? 0x30
-                                      : 0x2c;
-  WriteInt8(&rom[offset + kGax2ParamFxImmOffset], sfx_offset);
+    const std::uint8_t sfx_offset =
+        param.version().minor_version() >= 5 ? 0x30 : 0x2c;
+    WriteInt8(&rom[offset + kGax2ParamFxImmOffsetV3], sfx_offset);
+  } else {
+    std::memcpy(&rom[offset], gax2_driver_block.data(),
+                gax2_driver_block.size());
+    WriteInt32L(&rom[offset + kGax2NewOffsetV2], param.gax2_new() | 1);
+    WriteInt32L(&rom[offset + kGax2InitOffsetV2], param.gax2_init() | 1);
+    WriteInt32L(&rom[offset + kGaxIrqOffsetV2], param.gax_irq() | 1);
+    WriteInt32L(&rom[offset + kGaxPlayOffsetV2], param.gax_play() | 1);
+
+    WriteInt32L(&rom[offset + kMyWorkRamOffsetV2], work_address);
+    WriteInt32L(&rom[offset + kMyWorkRamSizeOffsetV2], work_size);
+  }
 
   WriteInt32L(rom.data(), make_arm_b(0x8000000, address));
 }
