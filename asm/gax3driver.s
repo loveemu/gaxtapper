@@ -92,14 +92,6 @@ AgbMain_Init:
 	movs r0, r4
 	bl gax2_estimate
 
-	@ Workaround for older GAX: GAX may estimate the size of the required
-	@ memory block too small, so increase the size slightly.
-	@ https://github.com/loveemu/gaxtapper/issues/19
-	ldr r0, [r4, #o_Gax2Params_wram_size]
-	movs r1, #0x30
-	adds r0, r0, r1
-	str r0, [r4, #o_Gax2Params_wram_size]
-
 	movs r1, #(INTR_MAIN_BUFFER_SIZE + INTR_TABLE_LENGTH * 4)
 	ldr r0, DriverWorkRamStart
 	adds r0, r0, r1
