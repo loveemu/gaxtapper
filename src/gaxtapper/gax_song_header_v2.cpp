@@ -34,10 +34,12 @@ std::optional<GaxSongHeaderV2> GaxSongHeaderV2::TryParse(std::string_view rom, s
   const agbsize_t sample_offset = to_offset(sample_address);
   if (sample_offset + 8 >= rom.size())
     return std::nullopt;
-  if (const agbptr_t sample_ptr = ReadInt32L(&rom[sample_offset]); !is_romptr(sample_ptr))
-    return std::nullopt;
-  if (const agbsize_t sample_size = ReadInt32L(&rom[sample_offset + 4]); sample_size != 0)
-    return std::nullopt;
+  if (const agbptr_t sample_ptr = ReadInt32L(&rom[sample_offset]); sample_ptr != 0) {
+    if (!is_romptr(sample_ptr)) return std::nullopt;
+    if (const agbsize_t sample_size = ReadInt32L(&rom[sample_offset + 4]);
+        sample_size != 0)
+      return std::nullopt;
+  }
 
   const std::uint16_t num_rows_per_pattern = ReadInt16L(&rom[offset + 2]);
   const std::uint16_t num_patterns_per_channel = ReadInt16L(&rom[offset + 4]);
