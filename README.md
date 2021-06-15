@@ -86,7 +86,7 @@ The format is as follows. Note that this is the current implementation version, 
 
 |Name        |Offset |Size |Description                                                                                                                          |
 |------------|-------|-----|-------------------------------------------------------------------------------------------------------------------------------------|
-|music       |0      |4    |The address of the song header                                                                                                       |
+|music       |0      |4    |The address of the song header (can be 0 if music is not used)                                                                       |
 |fx          |4      |4    |The address of the sound FX instrument header (can be 0 if FX is not used)                                                           |
 |fxid        |8      |2    |**TBA**: Set to 0xffff if FX is not used. This property is not yet supported, so always set it to 0xffff                             |
 |flags       |0xA    |2    |Flags for playback configuration. See below for details. Usually set to 0                                                            |
@@ -126,9 +126,11 @@ Gaxtapper will output an invalid GSF for Jazz Jackrabbit. Fortunately, there is 
 
 Gaxtapper scans the entire ROM using function signatures and simple heuristics for the necessary code and music data. Then, it will insert the relocatable driver code block into the ROM and dynamically link the address found in the previous step. This is the same as Saptapper.
 
-As for where to insert the driver code block. Saptapper will somehow try to find a free space in ROM, while Gaxtapper will simply use the original entry point. In practice, this method is rarely a problem. (In the initial development I always used 0x80000c0, which sometimes broke the system call function.)
+As for where to insert the driver code block. Saptapper will try to find a free space in ROM, while Gaxtapper will simply use the original entry point. In practice, this method is rarely a problem. (In the initial development I always used 0x80000c0, which sometimes broke the system call function.)
 
 Also, in contrast to MP2k, the GSF driver has to pass the work area to GAX. In addition, GAX maintains a pointer to that area at a static address in IWRAM or EWRAM. If the two conflict, the memory will be corrupted ([#7](https://github.com/loveemu/gaxtapper/issues/7)). To avoid conflicts, Gaxtapper scans the address of the internal pointer held by GAX and then dynamically determines the address of the work area on IWRAM. (EWRAM can also be used, however there are rare cases where slow RAM access makes music playback slower.)
+
+Moreover, since GAX does not have a song list like MP2k, the song list displayed by Gaxtapper is created from the results of a pattern scan of the entire ROM.
 
 ## License
 
