@@ -104,7 +104,7 @@ The details of the flags are not yet clear, but at least the following flags are
 
 ## Compatibility, limitations and known bugs
 
-GAX is a little less self-contained than M4A (Nintendo's standard sound driver) and can change things programmatically, so sometimes Gaxtapper may not work as expected. If you think you have found a problem, please visit the [Issues](https://github.com/loveemu/gaxtapper/issues) page.
+GAX is a little less self-contained than MusicPlayer2000 (Nintendo's standard sound driver) and can change things programmatically, so sometimes Gaxtapper may not work as expected. If you think you have found a problem, please visit the [Issues](https://github.com/loveemu/gaxtapper/issues) page.
 
 ### Supported / Unsupported games
 
@@ -128,7 +128,7 @@ Gaxtapper scans the entire ROM using function signatures and simple heuristics f
 
 As for where to insert the driver code block. Saptapper will somehow try to find a free space in ROM, while Gaxtapper will simply use the original entry point. In practice, this method is rarely a problem. (In the initial development I always used 0x80000c0, which sometimes broke the system call function.)
 
-Also, in contrast to M4A, the GSF driver has to pass the work area to GAX. In addition, GAX maintains a pointer to that area at a static address in IWRAM or EWRAM. If the two conflict, the memory will be corrupted ([#7](https://github.com/loveemu/gaxtapper/issues/7)). To avoid conflicts, Gaxtapper scans the address of the internal pointer held by GAX and then dynamically determines the address of the work area on IWRAM. (EWRAM can also be used, however there are rare cases where slow RAM access makes music playback slower.)
+Also, in contrast to MP2k, the GSF driver has to pass the work area to GAX. In addition, GAX maintains a pointer to that area at a static address in IWRAM or EWRAM. If the two conflict, the memory will be corrupted ([#7](https://github.com/loveemu/gaxtapper/issues/7)). To avoid conflicts, Gaxtapper scans the address of the internal pointer held by GAX and then dynamically determines the address of the work area on IWRAM. (EWRAM can also be used, however there are rare cases where slow RAM access makes music playback slower.)
 
 ## License
 
