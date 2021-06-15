@@ -86,8 +86,8 @@ The format is as follows. Note that this is the current implementation version, 
 
 |Name        |Offset |Size |Description                                                                                                                          |
 |------------|-------|-----|-------------------------------------------------------------------------------------------------------------------------------------|
-|music       |0      |4    |The address of the song header (can be 0 if music is not used)                                                                       |
-|fx          |4      |4    |The address of the sound FX instrument header (can be 0 if FX is not used)                                                           |
+|music       |0      |4    |The address of the song header (can be 0 if not used)                                                                                |
+|samples     |4      |4    |The address of the header of the shared samples, such as FX  (can be 0 if not used)                                                  |
 |fxid        |8      |2    |**TBA**: Set to 0xffff if FX is not used. This property is not yet supported, so always set it to 0xffff                             |
 |flags       |0xA    |2    |Flags for playback configuration. See below for details. Usually set to 0                                                            |
 |mixing_rate |0xC    |2    |Mixing rate of music and FX in hertz (use 5735, 9079, 10513, 11469, 13380, 15769, 18158, 21025, 26760, 31537, 36316, 40138 or 42049) |
